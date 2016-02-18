@@ -45,3 +45,6 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# ignores all .csv-files - doesn't push to remote repp - no commit
+*.csv
