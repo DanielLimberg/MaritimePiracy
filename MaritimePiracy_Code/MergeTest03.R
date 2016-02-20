@@ -60,6 +60,7 @@ shipping$vessel[shipping$vessel==333] <- 3
 shipping$vessel <- factor(shipping$vessel,
                           levels = c(1,2,3),
                           labels = c("merchant", "oil", "other"))
+shipping$vessel <- factor(shipping$vessel)
 
 names(shipping)[24] <- 'incidents' #former var name: Incident_type_recode
 shipping$incidents2 <- shipping$incidents
@@ -139,59 +140,85 @@ names(allWDI)[16] <- 'agrar.empl'
 names(allWDI)[17] <- 'gini.index'
 names(allWDI)[18] <- 'child.mortality'
 
-#African countries w/ sealine
-allWDI$continent <- allWDI$iso2c
-allWDI$continent[allWDI$continent=="EG"] <- "Africa"
-allWDI$continent[allWDI$continent=="SD"] <- "Africa"
-allWDI$continent[allWDI$continent=="ER"] <- "Africa"
-allWDI$continent[allWDI$continent=="DJ"] <- "Africa"
-allWDI$continent[allWDI$continent=="SO"] <- "Africa"
-allWDI$continent[allWDI$continent=="KE"] <- "Africa"
-allWDI$continent[allWDI$continent=="MZ"] <- "Africa"
-allWDI$continent[allWDI$continent=="MG"] <- "Africa"
-allWDI$continent[allWDI$continent=="ZA"] <- "Africa"
-allWDI$continent[allWDI$continent=="NA"] <- "Africa"
-allWDI$continent[allWDI$continent=="AO"] <- "Africa"
-allWDI$continent[allWDI$continent=="CD"] <- "Africa"
-allWDI$continent[allWDI$continent=="CG"] <- "Africa"
-allWDI$continent[allWDI$continent=="GA"] <- "Africa"
-allWDI$continent[allWDI$continent=="CM"] <- "Africa"
-allWDI$continent[allWDI$continent=="GQ"] <- "Africa"
-allWDI$continent[allWDI$continent=="NG"] <- "Africa"
-allWDI$continent[allWDI$continent=="BJ"] <- "Africa"
-allWDI$continent[allWDI$continent=="TG"] <- "Africa"
-allWDI$continent[allWDI$continent=="GH"] <- "Africa"
-allWDI$continent[allWDI$continent=="CI"] <- "Africa"
-allWDI$continent[allWDI$continent=="LR"] <- "Africa"
-allWDI$continent[allWDI$continent=="SL"] <- "Africa"
-allWDI$continent[allWDI$continent=="GN"] <- "Africa"
-allWDI$continent[allWDI$continent=="GW"] <- "Africa"
-allWDI$continent[allWDI$continent=="GM"] <- "Africa"
-allWDI$continent[allWDI$continent=="SN"] <- "Africa"
-allWDI$continent[allWDI$continent=="CV"] <- "Africa"
-allWDI$continent[allWDI$continent=="MR"] <- "Africa"
-allWDI$continent[allWDI$continent=="MA"] <- "Africa"
-allWDI$continent[allWDI$continent=="DZ"] <- "Africa"
-allWDI$continent[allWDI$continent=="LY"] <- "Africa"
-allWDI$continent[allWDI$continent=="TN"] <- "Africa"
-allWDI$continent[allWDI$continent=="MU"] <- "Africa"
-allWDI$continent[allWDI$continent=="SC"] <- "Africa"
-allWDI$continent[allWDI$continent=="KM"] <- "Africa"
+#African countries w/ sealine (World Bank)
+allWDI$continent <- "ROW"
+allWDI$continent[which(allWDI$iso2c=="EG")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="SD")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="ER")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="DJ")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="SO")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="KE")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="MZ")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="MG")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="ZA")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="NA")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="AO")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="CD")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="CG")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="GA")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="CM")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="GQ")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="NG")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="BJ")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="TG")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="GH")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="CI")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="LR")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="SL")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="GN")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="GW")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="GM")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="SN")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="CV")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="MR")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="MA")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="DZ")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="LY")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="TN")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="MU")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="SC")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="KM")] <- "Africa"
 
-#East Asian countries w/ sealine
-allWDI$continent[allWDI$continent=="JP"] <- "Asia"
-allWDI$continent[allWDI$continent=="CN"] <- "Asia"
-allWDI$continent[allWDI$continent=="KA"] <- "Asia"
-allWDI$continent[allWDI$continent=="ID"] <- "Asia"
-allWDI$continent[allWDI$continent=="KR"] <- "Asia"
-allWDI$continent[allWDI$continent=="MY"] <- "Asia"
-allWDI$continent[allWDI$continent=="MM"] <- "Asia"
-allWDI$continent[allWDI$continent=="PG"] <- "Asia"
-allWDI$continent[allWDI$continent=="PH"] <- "Asia"
-allWDI$continent[allWDI$continent=="SG"] <- "Asia"
-allWDI$continent[allWDI$continent=="TH"] <- "Asia"
-allWDI$continent[allWDI$continent=="TL"] <- "Asia"
-allWDI$continent[allWDI$continent=="VN"] <- "Asia"
+#East Asian countries w/ sealine (World Bank)
+allWDI$continent[which(allWDI$iso2c=="JP")] <- "Asia"
+allWDI$continent[which(allWDI$iso2c=="CN")] <- "Asia"
+allWDI$continent[which(allWDI$iso2c=="KH")] <- "Asia"
+allWDI$continent[which(allWDI$iso2c=="ID")] <- "Asia"
+allWDI$continent[which(allWDI$iso2c=="KR")] <- "Asia"
+allWDI$continent[which(allWDI$iso2c=="MY")] <- "Asia"
+allWDI$continent[which(allWDI$iso2c=="MM")] <- "Asia"
+allWDI$continent[which(allWDI$iso2c=="PG")] <- "Asia"
+allWDI$continent[which(allWDI$iso2c=="PH")] <- "Asia"
+allWDI$continent[which(allWDI$iso2c=="SG")] <- "Asia"
+allWDI$continent[which(allWDI$iso2c=="TH")] <- "Asia"
+allWDI$continent[which(allWDI$iso2c=="TL")] <- "Asia"
+allWDI$continent[which(allWDI$iso2c=="VN")] <- "Asia"
+
+#East Asia country dummies
+allWDI$Japan <- 0
+allWDI$Japan[which(allWDI$iso2c=="JP")] <- 1
+allWDI$China <- 0
+allWDI$China[which(allWDI$iso2c=="CN")] <- 1
+allWDI$Cambodia <- 0
+allWDI$Cambodia[which(allWDI$iso2c=="KH")] <- 1
+allWDI$Indonesia <- 0
+allWDI$Indonesia[which(allWDI$iso2c=="ID")] <- 1
+allWDI$Korea <- 0
+allWDI$Korea[which(allWDI$iso2c=="KR")] <- 1
+allWDI$Malaysia <- 0
+allWDI$Malaysia[which(allWDI$iso2c=="MY")] <- 1
+allWDI$Myanmar <- 0
+allWDI$Myanmar[which(allWDI$iso2c=="MM")] <- 1
+allWDI$Papua <- 0
+allWDI$Papua[which(allWDI$iso2c=="PG")] <- 1
+allWDI$Philippines <- 0
+allWDI$Philippines[which(allWDI$iso2c=="PH")] <- 1
+allWDI$Singapore <- 0
+allWDI$Singapore[which(allWDI$iso2c=="SG")] <- 1
+allWDI$Thailand <- 0
+allWDI$Thailand[which(allWDI$iso2c=="TH")] <- 1
+allWDI$Timor <- 0
+allWDI$Timor[which(allWDI$iso2c == "TL")] <- 1
 
 ###################################
 # MERGE 1 ### MERGE 1 ### MERGE 1 #
@@ -200,7 +227,22 @@ merge1 <- merge(allWDI,aggship,by=c("iso2c", "year"), all.x = TRUE) #merges WDI 
 #merge1[duplicated(merge1[,1:2]),]
 #anti_join(allWDI,aggrtship,by= "iso2c", "year")
 rm(aggship, allWDI, shipping, aggcc, iso)
+merge1$incidents[is.na(merge1$incidents)] <- 0
 missmap(merge1) #eyeballing missing data
+hist(merge1$incidents, main="Incidents of Piracy", col="blue", breaks = 100) #poisson distribution
+summary(merge1$incidents) #mean = 2.978
+var(merge1$incidents) #variance = 113.9323
+#African countries only
+Africa <- filter(merge1, continent == "Africa")
+hist(Africa$incidents, main="Incidents of Piracy", col="red", breaks = 100) #poisson distribution
+summary(Africa$incidents) #mean = 1.865
+var(Africa$incidents) #variance = 23.65033
+#Asian countries only
+Asia <- filter(merge1, continent == "Asia")
+hist(Asia$incidents, main="Incidents of Piracy", col="yellow", breaks = 100) #poisson distribution
+summary(Asia$incidents) #mean = 10.09
+var(Asia$incidents) #variance = 548.2198
+rm(Africa, Asia)
 
 ####################
 #Armed Conflict data
@@ -222,7 +264,6 @@ aggcon <- data.frame(con)
 ###################################
 merge2 <- merge(merge1,aggcon,by=c("iso2c", "year"), all.x = TRUE) #merges merge2 + aggcon
 rm(aggcon, con, conflict, conflcc)
-merge2$incidents[is.na(merge2$incidents)] <- 0
 merge2$bestfatalityestimate[is.na(merge2$bestfatalityestimate)] <- 0
 merge2$lowfatalityestimate[is.na(merge2$lowfatalityestimate)] <- 0
 merge2$highfatalityestimate[is.na(merge2$highfatalityestimate)] <- 0
@@ -308,15 +349,15 @@ merge3$DD[is.na(merge3$DD)] <- 0
 merge3$FD[is.na(merge3$FD)] <- 0
 missmap(merge3) #eyeballing missing data
 summary(merge3$gini.index)
-temp <- filter(merge3, incidents != 0)
-summary(temp$gini.index)
-rm(temp)
+#temp <- filter(merge3, incidents != 0)
+#summary(temp$gini.index)
+#rm(temp)
 
 ###################################
 # MERGE 4 ### MERGE 4 ### MERGE 4 #
 ###################################
 oil <- read.csv("oil_wti.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE, na.strings = c("", "NA"))
-names(oil)[1] <- 'year'
+names(oil)[1] <- 'year' #former var name: DATE
 str(oil$year)
 oil$year <- as.character(oil$year)
 oil$year <- substring(oil$year,1,nchar(oil$year)-6)
