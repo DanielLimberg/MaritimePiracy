@@ -7,7 +7,7 @@
 #Call libraries we need for the project, make sure you have them installed
 library(base)
 library(rio) #swiss army knife for imports
-library(plyr) #count occurences
+library(plyr) #command ddply
 library(dplyr) #data wrangling
 library(tidyr) #data wrangling
 library(ggplot2) #nice plots
@@ -22,6 +22,8 @@ library(tidyr) #reshaping
 library(plm) #fixed and random effects models
 library(stringr)
 library(sjPlot) #makes nice graphs, see: http://strengejacke.de/sjPlot/ 
+library(foreign)
+library(MASS)
 
 #set working directories if necessary (if data lies in git repo it is not necessary though)
 try(setwd("E:/bjoer/Documents/GitHub/MaritimePiracyWrangling/Data"),silent=TRUE)
@@ -350,7 +352,6 @@ disaster$Homeless <- NULL
 
 disaster$disaster <- gsub("[^a-zA-Z0-9]","",disaster$disaster) #get rid of special characters
 disaster$country <- gsub("[^a-zA-Z0-9]","",disaster$country) #get rid of special characters
-list(disaster$country)
 
 aggrtdis <- dcast(disaster, country + year ~ disaster, sum) #p317 R for Dummies
 disastercc <- aggrtdis$country
