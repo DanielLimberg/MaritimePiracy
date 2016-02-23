@@ -2,5 +2,5 @@
 ---
 ##Collaborative Master Thesis Project @ HSoG Berlin
 
-##Authors: Boening, Björn & Limberg, Daniel
+##Authors: Boening, Bjoern & Limberg, Daniel
 ---
