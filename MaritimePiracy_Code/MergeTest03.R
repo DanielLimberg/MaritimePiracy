@@ -23,6 +23,8 @@ library(stringr)
 library(sjPlot) #makes nice graphs, see: http://strengejacke.de/sjPlot/
 library(foreign)
 library(MASS)
+library(aod)
+library(Rcpp)
 
 #set working directories if necessary (if data lies in git repo it is not necessary though)
 try(setwd("E:/bjoer/Documents/GitHub/MaritimePiracyWrangling/Data"),silent=TRUE)
