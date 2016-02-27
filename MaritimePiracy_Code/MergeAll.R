@@ -252,6 +252,8 @@ merge1 <- merge(allWDI,aggrtship,by=c("iso2c", "year"), all.x = TRUE) #merges WD
 #anti_join(allWDI,aggrtship,by= "iso2c", "year")
 rm(allWDI, aggrtship, shipping, aggrtcc, cc, iso, sea0, idx, dummy)
 merge1$incidents[is.na(merge1$incidents)] <- 0
+merge1$incbinary <- merge1$incidents
+merge1$incbinary[merge1$incbinary>=1] <- 1
 missmap(merge1) #eyeballing missing data
 hist(merge1$incidents, main="Incidents of Piracy", col="blue", breaks = 100) #poisson distribution
 summary(merge1$incidents) #mean = 1.725
@@ -289,8 +291,8 @@ aggcon <- data.frame(con)
 ###################################
 # MERGE 2 ### MERGE 2 ### MERGE 2 #
 ###################################
-merge2 <- merge(merge1,aggrtmil2,by=c("iso2c", "year"), all.x = TRUE) #merges merge2 + aggrtmil2
-rm(aggrtmil2, mil2, military2, mil2cc)
+merge2 <- merge(merge1,aggcon,by=c("iso2c", "year"), all.x = TRUE) #merges merge2 + aggrtmil2
+rm(aggcon, con, conflict, conflcc)
 merge2$bestfatalityestimate[is.na(merge2$bestfatalityestimate)] <- 0
 merge2$lowfatalityestimate[is.na(merge2$lowfatalityestimate)] <- 0
 merge2$highfatalityestimate[is.na(merge2$highfatalityestimate)] <- 0
