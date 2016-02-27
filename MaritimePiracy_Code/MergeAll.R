@@ -64,10 +64,9 @@ allWDI <- WDI(iso, indicator = c("SL.UEM.TOTL.ZS", #unem.total (4th column)
                                  "SP.RUR.TOTL.ZG", #poprur.gr
                                  "SP.URB.GROW", #popurb.gr
                                  "SH.DYN.MORT", #child mortatlity <5 yrs per 1000
-                                 "SL.TLF.ACTI.1524.ZS", #labor.part
                                  "IQ.CPA.PROP.XQ", #property rights and rule-based governance rating
                                  "SL.AGR.EMPL.ZS", #empl.agrar
-                                 "SI.POV.GINI"), #gini (19th column)
+                                 "SI.POV.GINI"), #gini (18th column)
               start=1993, end=2014)
 
 missmap(allWDI) #eyeballing missing data
@@ -84,10 +83,9 @@ names(allWDI)[12] <- 'mobilep100'
 names(allWDI)[13] <- 'poprur.gr'
 names(allWDI)[14] <- 'popurb.gr'
 names(allWDI)[15] <- 'cmort'
-names(allWDI)[16] <- 'labor.part'
-names(allWDI)[17] <- 'property'
-names(allWDI)[18] <- 'empl.agrar'
-names(allWDI)[19] <- 'gini'
+names(allWDI)[16] <- 'property'
+names(allWDI)[17] <- 'empl.agrar'
+names(allWDI)[18] <- 'gini'
 
 #African countries w/ sealine (World Bank)
 allWDI$continent <- "ROW"
@@ -149,23 +147,12 @@ dummy <- matrix(NA, nrow = nrow(allWDI), ncol = length(idx))
 for (j in 1:length(idx)) { 
   dummy[,j] <- as.integer(allWDI$iso2c == idx[j])
 }
+rm(j)
 #names(dummy) <- idx
 #allWDI <- cbind(allWDI, dummy)
 
 #z.out <- zelig(y ~ x1 + x2 + x3 + as.factor(iso2c), 
                #data = mydata, model = "ls")
-
-#length of coastline
-url <- "https://www.cia.gov/library/publications/the-world-factbook/fields/2060.html"
-page <- getURL(url, .opts = list(ssl.verifypeer=FALSE))
-tables <- readHTMLTable(page, header=TRUE)
-
-length <- data.frame(tables)
-names(length)[1] <- 'country'
-names(length)[2] <- 'coastlength'
-length$coastlength <- as.character(length$coastlength)
-length$coastlength <- gsub("[ km,]","",length$coastlength)
-length$coastlength <- gsub("\\(.*","",length$coastlength)
 
 
 
@@ -198,8 +185,6 @@ shipping$vessel[shipping$vessel==1] <- 333
 shipping$vessel[shipping$vessel==5] <- 333
 shipping$vessel[shipping$vessel==9] <- 333
 shipping$vessel[shipping$vessel==10] <- 333
-shipping$vessel[shipping$vessel==111] <- 1
-shipping$vessel[shipping$vessel==222] <- 2
 shipping$vessel[shipping$vessel==-99] <- NA
 shipping$vessel[shipping$vessel==22] <- NA
 shipping$vessel[shipping$vessel==696] <- NA
@@ -421,6 +406,75 @@ merge4 <- merge(merge3,oil,by=c("year"), all.x = TRUE) #merges merge3 + oil pric
 rm(oil)
 
 
+###################################
+# MERGE 5 ### MERGE 5 ### MERGE 5 #
+###################################
+url <- "https://www.cia.gov/library/publications/the-world-factbook/fields/2060.html" #length of coastline
+page <- getURL(url, .opts = list(ssl.verifypeer=FALSE))
+tables <- readHTMLTable(page, header=TRUE)
+
+length <- data.frame(tables)
+names(length)[1] <- 'country'
+names(length)[2] <- 'coastkm'
+length$coastkm <- as.character(length$coastkm)
+length$coastkm <- gsub("[,total: ]","",length$coastkm)
+length$coastkm <- gsub("\\k.*","",length$coastkm)
+length$coastkm <- as.numeric(length$coastkm)
+
+lcc <- length$country
+length$iso2c <- countrycode(lcc, "country.name", "iso2c")
+length[261, ] #West Bank, same iso2 code as Gaza Strip
+length <- length[-c(261), ]
+length <- na.omit(length)
+length$country <- NULL
+merge5 <- merge(merge4,length,by=c("iso2c"), all.x = TRUE) #merges merge4 + coastline length
+rm(length, url, page, tables, lcc)
+
+
+###################################
+# MERGE 6 ### MERGE 6 ### MERGE 6 #
+###################################
+polity <- read.csv("p4v2014.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE, na.strings = c("", "NA")) #polity iv project
+polity <- polity[,c(4:5,8:10)]
+#pcc <- polity$country
+#polity$iso2c <- countrycode(pcc, "country.name", "iso2c")
+#polity$country <- NULL
+polity$polity[polity$polity==-88] <- NA
+polity$polity[polity$polity==-77] <- NA
+polity$polity[polity$polity==-66] <- NA
+polity$polity[polity$polity==-10] <- 111
+polity$polity[polity$polity==-9] <- 111
+polity$polity[polity$polity==-8] <- 111
+polity$polity[polity$polity==-7] <- 111
+polity$polity[polity$polity==-6] <- 111
+polity$polity[polity$polity==-5] <- 222
+polity$polity[polity$polity==-4] <- 222
+polity$polity[polity$polity==-3] <- 222
+polity$polity[polity$polity==-2] <- 222
+polity$polity[polity$polity==-1] <- 222
+polity$polity[polity$polity==0] <- 222
+polity$polity[polity$polity==1] <- 222
+polity$polity[polity$polity==2] <- 222
+polity$polity[polity$polity==3] <- 222
+polity$polity[polity$polity==4] <- 222
+polity$polity[polity$polity==5] <- 222
+polity$polity[polity$polity==6] <- 333
+polity$polity[polity$polity==7] <- 333
+polity$polity[polity$polity==8] <- 333
+polity$polity[polity$polity==9] <- 333
+polity$polity[polity$polity==10] <- 333
+polity$polity[polity$polity==111] <- 1
+polity$polity[polity$polity==222] <- 2
+polity$polity[polity$polity==333] <- 3
+polity$polity <- factor(polity$polity,
+                          levels = c(1,2,3),
+                          labels = c("autocracy", "anocracy", "democracy"))
+polity <- polity[,c(1:2,5)]
+merge6 <- merge(merge5,polity,by=c("country", "year"), all.x = TRUE) #merges merge5 + polity data series (why does it only work w/ 'country' not w/ 'iso2c'?)
+missmap(merge6) #eyeballing missing data
+rm(polity, pcc)
+
+
 
 ###############################################
 ###############################################
@@ -429,196 +483,5 @@ rm(oil)
 ###############################################
 #merge3 <- read.csv("merge3.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE, na.strings = c("", "NA"))
 #Africa <- read.csv("africa.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE, na.strings = c("", "NA"))
-panel <- pdata.frame(merge4, index=c("iso2c", "year")) #setting dataframe to panel data
-rm(merge1, merge2, merge3, merge4)
-
-
-
-############################################
-#Plot some explenatory var against incidents
-############################################
-
-#################
-#GDPpc and piracy
-#################
-GDP = panel$GDPpc #x-axis
-incidents = panel$incidents #y-axis
-plot(GDP, incidents, xlab="GDP per capita", ylab="Incidents of Piracy")
-
-######################
-#GDP growth and piracy
-######################
-GDP = panel$GDP.grow #x-axis
-incidents = panel$incidents #y-axis
-plot(GDP, incidents, xlab="GDP growth", ylab="Incidents of Piracy")
-
-########################
-#Mobile phones and GDPpc
-########################
-mobile = panel$mobile #x-axis
-GDP = panel$GDPpc #y-axis
-plot(mobile, GDP, xlab="Mobile Phones", ylab="GDP per capita")
-
-#############################
-#Mobile phones and GDP growth
-#############################
-mobile = panel$mobile #x-axis
-GDP = panel$GDP.grow #y-axis
-plot(mobile, GDP, xlab="Mobile Phones", ylab="GDP growth")
-
-################################
-#Mobile Phones per 100 and GDPpc
-################################
-mobile = panel$mobile.p100 #x-axis
-GDP = panel$GDPpc #y-axis
-plot(mobile, incidents, xlab="Mobile Phones per 100", ylab="GDP per capita")
-
-#########################
-#Mobile phones and piracy
-#########################
-mobile = panel$mobile #x-axis
-incidents = panel$incidents #y-axis
-plot(mobile, incidents, xlab="Mobile Phones", ylab="Incidents of Piracy")
-
-#################################
-#Mobile Phones per 100 and piracy
-#################################
-mobile = panel$mobile.p100 #x-axis
-incidents = panel$incidents #y-axis
-plot(mobile, incidents, xlab="Mobile Phones per 100", ylab="Incidents of Piracy")
-
-###################
-#Drought and piracy
-###################
-drought = panel$Drought #x-axis
-incidents = panel$incidents #y-axis
-plot(drought, incidents, xlab="Drought", ylab="Incidents of Piracy")
-drought = panel$DD #x-axis
-incidents = panel$incidents #y-axis
-plot(drought, incidents, xlab="Drought", ylab="Incidents of Piracy")
-
-#################
-#Flood and piracy
-#################
-flood = panel$Flood #x-axis
-incidents = panel$incidents #y-axis
-plot(flood, incidents, xlab="Flood", ylab="Incidents of Piracy")
-flood = panel$FD #x-axis
-incidents = panel$incidents #y-axis
-plot(flood, incidents, xlab="Flood", ylab="Incidents of Piracy")
-
-################
-#GINI and piracy
-################
-gini = panel$gini.index #x-axis
-incidents = panel$incidents #y-axis
-plot(gini, incidents, xlab="GINI index", ylab="Incidents of Piracy")
-
-################
-#Oil prices and piracy
-################
-WTI = panel$WTI #x-axis
-incidents = panel$incidents #y-axis
-plot(WTI, incidents, xlab="W.T.I., annual average", ylab="Incidents of Piracy")
-
-rm(drought, flood, GDP, incidents, mobile, gini, WTI)
-
-
-
-temp <- filter(panel, incidents != 0) #only 804 observations left if all 0 deleted
-#################
-#GDPpc and piracy
-#################
-GDP = temp$GDPpc #x-axis
-incidents = temp$incidents #y-axis
-plot(GDP, incidents, xlab="GDP per capita", ylab="Incidents of Piracy")
-
-######################
-#GDP growth and piracy
-######################
-GDP = temp$GDP.grow #x-axis
-incidents = temp$incidents #y-axis
-plot(GDP, incidents, xlab="GDP growth", ylab="Incidents of Piracy")
-
-########################
-#Mobile phones and GDPpc
-########################
-mobile = temp$mobile #x-axis
-GDP = temp$GDPpc #y-axis
-plot(mobile, GDP, xlab="Mobile Phones", ylab="GDP per capita")
-
-#############################
-#Mobile phones and GDP growth
-#############################
-mobile = temp$mobile #x-axis
-GDP = temp$GDP.grow #y-axis
-plot(mobile, GDP, xlab="Mobile Phones", ylab="GDP growth")
-
-################################
-#Mobile Phones per 100 and GDPpc
-################################
-mobile = temp$mobile.p100 #x-axis
-GDP = temp$GDPpc #y-axis
-plot(mobile, incidents, xlab="Mobile Phones per 100", ylab="GDP per capita")
-
-#####################################
-#Mobile phones per 100 and GDP growth
-#####################################
-mobile = temp$mobile.p100 #x-axis
-GDP = temp$GDP.grow #y-axis
-plot(mobile, GDP, xlab="Mobile Phones", ylab="GDP growth")
-
-#########################
-#Mobile phones and piracy
-#########################
-mobile = temp$mobile #x-axis
-incidents = temp$incidents #y-axis
-plot(mobile, incidents, xlab="Mobile Phones", ylab="Incidents of Piracy")
-
-#################################
-#Mobile Phones per 100 and piracy
-#################################
-mobile = temp$mobile.p100 #x-axis
-incidents = temp$incidents #y-axis
-plot(mobile, incidents, xlab="Mobile Phones per 100", ylab="Incidents of Piracy")
-
-###################
-#Drought and piracy
-###################
-drought = temp$Drought #x-axis
-incidents = temp$incidents #y-axis
-plot(drought, incidents, xlab="Drought", ylab="Incidents of Piracy")
-drought = temp$DD #x-axis
-incidents = temp$incidents #y-axis
-plot(drought, incidents, xlab="Drought", ylab="Incidents of Piracy")
-
-#################
-#Flood and piracy
-#################
-flood = temp$Flood #x-axis
-incidents = temp$incidents #y-axis
-plot(flood, incidents, xlab="Flood", ylab="Incidents of Piracy")
-flood = temp$FD #x-axis
-incidents = temp$incidents #y-axis
-plot(flood, incidents, xlab="Flood", ylab="Incidents of Piracy")
-
-################
-#GINI and piracy
-################
-gini = temp$gini.index #x-axis
-incidents = temp$incidents #y-axis
-plot(gini, incidents, xlab="GINI index", ylab="Incidents of Piracy")
-
-rm(drought, flood, GDP, incidents, mobile, temp, gini)
-
-#Hausman test: comparing fixed and random effects model
-#fe <- plm(incidents~mobile+unem.total+lowfatalityestimate, data=panel, index=c("iso2c", "year"), model="within") #fixed effects model
-#re <- plm(incidents~mobile+unem.total+lowfatalityestimate, data=panel, index=c("iso2c", "year"), model="random") #random effects model
-#ols <- plm(incidents~mobile+unem.total+lowfatalityestimate, data=panel, index=c("iso2c", "year"), model="pooling") #random effects model
-#summary(fe)
-#summary(re)
-#summary(ols)
-#vif(fe)
-#vif(re)
-#vif(ols)
-#phtest(fe, re) #Hausman, H0: cov(a,x)=0 #error: Error in solve.default(dvcov) : system is computationally singular: reciprocal condition number = 1.62162e-16
+panel <- pdata.frame(merge6, index=c("iso2c", "year")) #setting dataframe to panel data
+rm(merge1, merge2, merge3, merge4, merge5)
