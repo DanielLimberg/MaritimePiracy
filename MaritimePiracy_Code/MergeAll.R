@@ -128,7 +128,7 @@ allWDI$continent[which(allWDI$iso2c=="MU")] <- "Africa"
 allWDI$continent[which(allWDI$iso2c=="SC")] <- "Africa"
 allWDI$continent[which(allWDI$iso2c=="KM")] <- "Africa"
 
-#East Asian countries w/ sealine (World Bank)
+#East Asian Pacific countries w/ sealine (World Bank)
 allWDI$continent[which(allWDI$iso2c=="JP")] <- "Asia"
 allWDI$continent[which(allWDI$iso2c=="CN")] <- "Asia"
 allWDI$continent[which(allWDI$iso2c=="KH")] <- "Asia"
@@ -142,6 +142,9 @@ allWDI$continent[which(allWDI$iso2c=="SG")] <- "Asia"
 allWDI$continent[which(allWDI$iso2c=="TH")] <- "Asia"
 allWDI$continent[which(allWDI$iso2c=="TL")] <- "Asia"
 allWDI$continent[which(allWDI$iso2c=="VN")] <- "Asia"
+
+#theory suggests that GNIpc < 2000 a year might be more prone to piracy (Murphey2008)
+allWDI$GNIgroup <- cut(allWDI$GNIpc, c(0,2000,4000,6000,10000,20000))
 
 #country dummies
 idx <- sort(unique(allWDI$iso2c))
@@ -438,11 +441,35 @@ length <- length[-c(261), ]
 length <- na.omit(length)
 length$country <- NULL
 merge5 <- merge(merge4,length,by=c("iso2c"), all.x = TRUE) #merges merge4 + coastline length
-rm(length, url, page, tables, lcc)
+rm(length, lcc)
+
 
 
 ###################################
 # MERGE 6 ### MERGE 6 ### MERGE 6 #
+###################################
+url <- "https://www.cia.gov/library/publications/the-world-factbook/rankorder/2147rank.html" #square kilometers
+page <- getURL(url, .opts = list(ssl.verifypeer=FALSE))
+tables <- readHTMLTable(page, header=TRUE)
+
+area <- data.frame(tables)
+area <- area[,c(2:3)]
+names(area)[1] <- 'country'
+names(area)[2] <- 'sqkm'
+#acc <- area$country
+#area$iso2c <- countrycode(acc, "country.name", "iso2c")
+area[172, ] #West Bank, same iso2 code as Gaza Strip
+area <- area[-c(172), ]
+area[239, ] #US Pacific Island Wildlife Refuges, same iso2 code as USA
+area <- area[-c(239), ]
+#area$country <- NULL
+merge6 <- merge(merge5,area,by=c("country"), all.x = TRUE) #merges merge4 + coastline length
+rm(area, acc, tables, page, url)
+
+
+
+###################################
+# MERGE 7 ### MERGE 7 ### MERGE 7 #
 ###################################
 polity <- read.csv("p4v2014.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE, na.strings = c("", "NA")) #polity iv project
 polity <- polity[,c(4:5,8:9,11)]
@@ -480,7 +507,7 @@ polity <- polity[,c(4:5,8:9,11)]
 #                          levels = c(1,2,3),
 #                          labels = c("autocracy", "anocracy", "democracy"))
 polity <- polity[,c(1:2,5)]
-merge6 <- merge(merge5,polity,by=c("country", "year"), all.x = TRUE) #merges merge5 + polity data series (why does it only work w/ 'country' not w/ 'iso2c'?)
+merge7 <- merge(merge6,polity,by=c("country", "year"), all.x = TRUE) #merges merge5 + polity data series (why does it only work w/ 'country' not w/ 'iso2c'?)
 missmap(merge6) #eyeballing missing data
 rm(polity, pcc)
 
@@ -493,5 +520,5 @@ rm(polity, pcc)
 ###############################################
 #merge3 <- read.csv("merge3.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE, na.strings = c("", "NA"))
 #Africa <- read.csv("africa.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE, na.strings = c("", "NA"))
-panel <- pdata.frame(merge6, index=c("iso2c", "year")) #setting dataframe to panel data
-rm(merge1, merge2, merge3, merge4, merge5)
+panel <- pdata.frame(merge7, index=c("iso2c", "year")) #setting dataframe to panel data
+rm(merge1, merge2, merge3, merge4, merge5, merge6)
