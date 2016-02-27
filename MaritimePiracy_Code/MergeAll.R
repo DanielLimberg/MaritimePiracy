@@ -466,6 +466,10 @@ area <- area[-c(239), ]
 merge6 <- merge(merge5,area,by=c("country"), all.x = TRUE) #merges merge4 + coastline length
 rm(area, acc, tables, page, url)
 
+#new variable to measure coastline ratio
+merge6$coastkm <- as.numeric(merge6$coastkm)
+merge6$sqkm <- as.numeric(merge6$sqkm)
+merge6$clratio <- (merge6$coastkm/merge6$sqkm)
 
 
 ###################################
