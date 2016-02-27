@@ -270,11 +270,17 @@ rm(Africa, Asia)
 ####################
 #Armed Conflict data
 ####################
-military2 <- read.csv("non-state-conflict.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE, na.strings = c("", "NA"))
-mil2cc <- military2$location #155 unique values
-military2$iso2c <- countrycode(mil2cc, "country.name", "iso2c") #only 84 iso countries
-mil2 <- ddply(military2, .(iso2c, year), function(military2) c(bestfatalityestimate=sum(military2$bestfatalityestimate), lowfatalityestimate=sum(military2$lowfatalityestimate), highfatalityestimate=sum(military2$highfatalityestimate)))
-aggrtmil2 <- data.frame(mil2)
+conflict <- read.csv("non-state-conflict.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE, na.strings = c("", "NA"))
+#renaming, otherwise no ISO2 code
+conflict$location[conflict$location=="Yemen (North Yemen)"] <- "Yemen"
+conflcc <- conflict$location
+conflict$startdate <- as.character(conflict$startdate)
+conflict$startdate <- substring(conflict$startdate,1,nchar(conflict$startdate)-6)
+names(conflict)[16] <- 'year2' #former var name: year
+names(conflict)[9] <- 'year' #former var name: startdate
+conflict$iso2c <- countrycode(conflcc, "country.name", "iso2c")
+con <- ddply(conflict, .(iso2c, year), function(conflict) c(bestfatalityestimate=sum(conflict$bestfatalityestimate), lowfatalityestimate=sum(conflict$lowfatalityestimate), highfatalityestimate=sum(conflict$highfatalityestimate)))
+aggcon <- data.frame(con)
 
 
 
@@ -286,11 +292,11 @@ rm(aggrtmil2, mil2, military2, mil2cc)
 merge2$bestfatalityestimate[is.na(merge2$bestfatalityestimate)] <- 0
 merge2$lowfatalityestimate[is.na(merge2$lowfatalityestimate)] <- 0
 merge2$highfatalityestimate[is.na(merge2$highfatalityestimate)] <- 0
-
+#create categorical variable
+summary(merge2$lowfatalityestimate)
+merge2$battlelow <- cut(merge2$lowfatalityestimate, c(-1,25,500,10000))
+table(merge2$battlelow)
 missmap(merge2) #eyeballing missing data
-#merge2[!(duplicated(merge2[c("iso2c","year")]) | duplicated(merge2[c("iso2c","year")], fromLast = TRUE)), ]
-#merge2[duplicated(merge2[,1:2]),]
-#summary(merge2$incidents) #Min: 0, Max: 136
 
 
 
@@ -435,40 +441,40 @@ rm(length, url, page, tables, lcc)
 # MERGE 6 ### MERGE 6 ### MERGE 6 #
 ###################################
 polity <- read.csv("p4v2014.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE, na.strings = c("", "NA")) #polity iv project
-polity <- polity[,c(4:5,8:10)]
+polity <- polity[,c(4:5,8:9,11)]
 #pcc <- polity$country
 #polity$iso2c <- countrycode(pcc, "country.name", "iso2c")
 #polity$country <- NULL
-polity$polity[polity$polity==-88] <- NA
-polity$polity[polity$polity==-77] <- NA
-polity$polity[polity$polity==-66] <- NA
-polity$polity[polity$polity==-10] <- 111
-polity$polity[polity$polity==-9] <- 111
-polity$polity[polity$polity==-8] <- 111
-polity$polity[polity$polity==-7] <- 111
-polity$polity[polity$polity==-6] <- 111
-polity$polity[polity$polity==-5] <- 222
-polity$polity[polity$polity==-4] <- 222
-polity$polity[polity$polity==-3] <- 222
-polity$polity[polity$polity==-2] <- 222
-polity$polity[polity$polity==-1] <- 222
-polity$polity[polity$polity==0] <- 222
-polity$polity[polity$polity==1] <- 222
-polity$polity[polity$polity==2] <- 222
-polity$polity[polity$polity==3] <- 222
-polity$polity[polity$polity==4] <- 222
-polity$polity[polity$polity==5] <- 222
-polity$polity[polity$polity==6] <- 333
-polity$polity[polity$polity==7] <- 333
-polity$polity[polity$polity==8] <- 333
-polity$polity[polity$polity==9] <- 333
-polity$polity[polity$polity==10] <- 333
-polity$polity[polity$polity==111] <- 1
-polity$polity[polity$polity==222] <- 2
-polity$polity[polity$polity==333] <- 3
-polity$polity <- factor(polity$polity,
-                          levels = c(1,2,3),
-                          labels = c("autocracy", "anocracy", "democracy"))
+#polity$polity[polity$polity==-88] <- NA
+#polity$polity[polity$polity==-77] <- NA
+#polity$polity[polity$polity==-66] <- NA
+#polity$polity2[polity$polity2==-10] <- 111
+#polity$polity2[polity$polity2==-9] <- 111
+#polity$polity2[polity$polity2==-8] <- 111
+#polity$polity2[polity$polity2==-7] <- 111
+#polity$polity2[polity$polity2==-6] <- 111
+#polity$polity2[polity$polity2==-5] <- 222
+#polity$polity2[polity$polity2==-4] <- 222
+#polity$polity2[polity$polity2==-3] <- 222
+#polity$polity2[polity$polity2==-2] <- 222
+#polity$polity2[polity$polity2==-1] <- 222
+#polity$polity2[polity$polity2==0] <- 222
+#polity$polity2[polity$polity2==1] <- 222
+#polity$polity2[polity$polity2==2] <- 222
+#polity$polity2[polity$polity2==3] <- 222
+#polity$polity2[polity$polity2==4] <- 222
+#polity$polity2[polity$polity2==5] <- 222
+#polity$polity2[polity$polity2==6] <- 333
+#polity$polity2[polity$polity2==7] <- 333
+#polity$polity2[polity$polity2==8] <- 333
+#polity$polity2[polity$polity2==9] <- 333
+#polity$polity2[polity$polity2==10] <- 333
+#polity$polity2[polity$polity2==111] <- 1
+#polity$polity2[polity$polity2==222] <- 2
+#polity$polity2[polity$polity2==333] <- 3
+#polity$polity2 <- factor(polity$polity2,
+#                          levels = c(1,2,3),
+#                          labels = c("autocracy", "anocracy", "democracy"))
 polity <- polity[,c(1:2,5)]
 merge6 <- merge(merge5,polity,by=c("country", "year"), all.x = TRUE) #merges merge5 + polity data series (why does it only work w/ 'country' not w/ 'iso2c'?)
 missmap(merge6) #eyeballing missing data
@@ -478,7 +484,7 @@ rm(polity, pcc)
 
 ###############################################
 ###############################################
-# Analysis Socio-Economic Determinants - Lim.D.
+# Declare Panel Data
 ###############################################
 ###############################################
 #merge3 <- read.csv("merge3.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE, na.strings = c("", "NA"))
