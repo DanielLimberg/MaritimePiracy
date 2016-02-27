@@ -53,8 +53,8 @@ iso <- sea0$iso2c[!duplicated(sea0$iso2c)]
 
 #parsing desired data from World Bank
 allWDI <- WDI(iso, indicator = c("SL.UEM.TOTL.ZS", #unem.total (4th column)
-                                 "SL.UEM.1524.ZS", #unem.youth
-                                 "SL.UEM.1524.MA.ZS", #unem.youth.m
+                                 "SL.UEM.1524.ZS", #unem.y
+                                 "SL.UEM.1524.MA.ZS", #unem.y.m
                                  "NY.GDP.MKTP.KD", #GDP, constant 2005 USD
                                  "NY.GDP.MKTP.KD.ZG", #GDP.gr, constant 2005 USD
                                  "NY.GDP.PCAP.KD.ZG", #GDPpc.gr, constant 2005 USD
@@ -66,26 +66,28 @@ allWDI <- WDI(iso, indicator = c("SL.UEM.TOTL.ZS", #unem.total (4th column)
                                  "SH.DYN.MORT", #child mortatlity <5 yrs per 1000
                                  "IQ.CPA.PROP.XQ", #property rights and rule-based governance rating
                                  "SL.AGR.EMPL.ZS", #empl.agrar
-                                 "SI.POV.GINI"), #gini (18th column)
+                                 "SI.POV.GINI", #gini
+                                 "NY.GNP.PCAP.KD"), #GNIpc, constant 2005 USD
               start=1993, end=2014)
 
 missmap(allWDI) #eyeballing missing data
 
 names(allWDI)[4] <- 'unem.total'
-names(allWDI)[5] <- 'unem.youth'
-names(allWDI)[6] <- 'unem.youth.m'
-names(allWDI)[7] <- 'GDPpc'
-names(allWDI)[8] <- 'GDP'
-names(allWDI)[9] <- 'GDP.gr'
-names(allWDI)[10] <- 'GDPpc.gr'
-names(allWDI)[11] <- 'mobile'
-names(allWDI)[12] <- 'mobilep100'
+names(allWDI)[5] <- 'unem.y'
+names(allWDI)[6] <- 'unem.y.m'
+names(allWDI)[7] <- 'GDP'
+names(allWDI)[8] <- 'GDPpc'
+names(allWDI)[9] <- 'GDPpc.gr'
+names(allWDI)[10] <- 'mobile'
+names(allWDI)[11] <- 'mobilep100'
+names(allWDI)[12] <- 'pop.gr'
 names(allWDI)[13] <- 'poprur.gr'
 names(allWDI)[14] <- 'popurb.gr'
 names(allWDI)[15] <- 'cmort'
 names(allWDI)[16] <- 'property'
 names(allWDI)[17] <- 'empl.agrar'
 names(allWDI)[18] <- 'gini'
+names(allWDI)[19] <- 'GNIpc'
 
 #African countries w/ sealine (World Bank)
 allWDI$continent <- "ROW"
