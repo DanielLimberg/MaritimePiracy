@@ -3,8 +3,8 @@
 #######################
 
 #set working directories if necessary (if data lies in git repo it is not necessary though)
-try(setwd("E:/bjoer/Documents/GitHub/MaritimePiracyWrangling/Data"),silent=TRUE)
-try(setwd("C:/Users/Dani/Documents/GitHub2/MaritimePiracy/MaritimePiracy_Data"),silent=TRUE)
+try(setwd(""),silent=TRUE)
+try(setwd("C:/Users/Dani/Documents/GitHub2/MaritimePiracy/MaritimePiracy_Code"),silent=TRUE)
 getwd()
 
 # Dynamically Link to first R script file
