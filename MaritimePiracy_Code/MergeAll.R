@@ -422,8 +422,8 @@ rm(oil)
 ###################################
 # MERGE 5 ### MERGE 5 ### MERGE 5 #
 ###################################
-url <- "https://www.cia.gov/library/publications/the-world-factbook/fields/2060.html" #length of coastline
-page <- getURL(url, .opts = list(ssl.verifypeer=FALSE))
+URL <- "https://www.cia.gov/library/publications/the-world-factbook/fields/2060.html" #length of coastline
+page <- getURL(URL, .opts = list(ssl.verifypeer=FALSE))
 tables <- readHTMLTable(page, header=TRUE)
 
 length <- data.frame(tables)
@@ -440,6 +440,7 @@ length[261, ] #West Bank, same iso2 code as Gaza Strip
 length <- length[-c(261), ]
 length <- na.omit(length)
 length$country <- NULL
+legnth$coastkm <- as.numeric(lenght$coastkm)
 merge5 <- merge(merge4,length,by=c("iso2c"), all.x = TRUE) #merges merge4 + coastline length
 rm(length, lcc)
 
@@ -448,14 +449,16 @@ rm(length, lcc)
 ###################################
 # MERGE 6 ### MERGE 6 ### MERGE 6 #
 ###################################
-url <- "https://www.cia.gov/library/publications/the-world-factbook/rankorder/2147rank.html" #square kilometers
-page <- getURL(url, .opts = list(ssl.verifypeer=FALSE))
+URL <- "https://www.cia.gov/library/publications/the-world-factbook/rankorder/2147rank.html" #square kilometers
+page <- getURL(URL, .opts = list(ssl.verifypeer=FALSE))
 tables <- readHTMLTable(page, header=TRUE)
 
 area <- data.frame(tables)
 area <- area[,c(2:3)]
 names(area)[1] <- 'country'
 names(area)[2] <- 'sqkm'
+area$sqkm <- as.character(area$sqkm)
+area$sqkm <- gsub("[, ]","",area$sqkm)
 #acc <- area$country
 #area$iso2c <- countrycode(acc, "country.name", "iso2c")
 area[172, ] #West Bank, same iso2 code as Gaza Strip
@@ -463,17 +466,40 @@ area <- area[-c(172), ]
 area[239, ] #US Pacific Island Wildlife Refuges, same iso2 code as USA
 area <- area[-c(239), ]
 #area$country <- NULL
+area$sqkm <- as.numeric(area$sqkm)
 merge6 <- merge(merge5,area,by=c("country"), all.x = TRUE) #merges merge4 + coastline length
-rm(area, acc, tables, page, url)
+rm(area, acc)
 
-#new variable to measure coastline ratio
-merge6$coastkm <- as.numeric(merge6$coastkm)
-merge6$sqkm <- as.numeric(merge6$sqkm)
-merge6$clratio <- (merge6$coastkm/merge6$sqkm)
 
 
 ###################################
 # MERGE 7 ### MERGE 7 ### MERGE 7 #
+###################################
+URL <- "https://www.cia.gov/library/publications/the-world-factbook/fields/2096.html" #lenght of border
+page <- getURL(URL, .opts = list(ssl.verifypeer=FALSE))
+tables <- readHTMLTable(page, header=TRUE)
+
+border <- data.frame(tables)
+names(border)[1] <- 'country'
+names(border)[2] <- 'borderkm'
+bcc <- border$country
+border$iso2c <- countrycode(bcc, "country.name", "iso2c")
+border[247, ] #US Pacific Island Wildlife Refuges, same iso2 code as USA
+border[257, ] #West Bank, same iso2 code as Gaza Strip
+border <- border[-c(247,257), ]
+border$borderkm <- as.character(border$borderkm)
+border$borderkm <- gsub("[,total: ]","",border$borderkm)
+border$borderkm <- gsub("[merpinFrnce-]","",border$borderkm)
+border$borderkm <- gsub("\\k.*","",border$borderkm)
+border$borderkm <- as.numeric(border$borderkm)
+border$country <- NULL
+merge7 <- merge(merge6,border,by=c("iso2c"), all.x = TRUE) #merges merge5 + border length
+rm(border, bcc, tables, page, URL)
+
+
+
+###################################
+# MERGE 8 ### MERGE 8 ### MERGE 8 #
 ###################################
 polity <- read.csv("p4v2014.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE, na.strings = c("", "NA")) #polity iv project
 polity <- polity[,c(4:5,8:9,11)]
@@ -499,20 +525,20 @@ polity <- polity[,c(4:5,8:9,11)]
 #polity$polity2[polity$polity2==3] <- 222
 #polity$polity2[polity$polity2==4] <- 222
 #polity$polity2[polity$polity2==5] <- 222
-#polity$polity2[polity$polity2==6] <- 333
-#polity$polity2[polity$polity2==7] <- 333
-#polity$polity2[polity$polity2==8] <- 333
-#polity$polity2[polity$polity2==9] <- 333
-#polity$polity2[polity$polity2==10] <- 333
+#polity$polity2[polity$polity2==6] <- 111
+#polity$polity2[polity$polity2==7] <- 111
+#polity$polity2[polity$polity2==8] <- 111
+#polity$polity2[polity$polity2==9] <- 111
+#polity$polity2[polity$polity2==10] <- 111
 #polity$polity2[polity$polity2==111] <- 1
 #polity$polity2[polity$polity2==222] <- 2
 #polity$polity2[polity$polity2==333] <- 3
 #polity$polity2 <- factor(polity$polity2,
 #                          levels = c(1,2,3),
-#                          labels = c("autocracy", "anocracy", "democracy"))
+#                          labels = c("aut-dem", "anocracy"))
 polity <- polity[,c(1:2,5)]
-merge7 <- merge(merge6,polity,by=c("country", "year"), all.x = TRUE) #merges merge5 + polity data series (why does it only work w/ 'country' not w/ 'iso2c'?)
-missmap(merge6) #eyeballing missing data
+merge8 <- merge(merge7,polity,by=c("country", "year"), all.x = TRUE) #merges merge5 + polity data series (why does it only work w/ 'country' not w/ 'iso2c'?)
+missmap(merge8) #eyeballing missing data
 rm(polity, pcc)
 
 
@@ -524,5 +550,5 @@ rm(polity, pcc)
 ###############################################
 #merge3 <- read.csv("merge3.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE, na.strings = c("", "NA"))
 #Africa <- read.csv("africa.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE, na.strings = c("", "NA"))
-panel <- pdata.frame(merge7, index=c("iso2c", "year")) #setting dataframe to panel data
-rm(merge1, merge2, merge3, merge4, merge5, merge6)
+panel <- pdata.frame(merge8, index=c("iso2c", "year")) #setting dataframe to panel data
+rm(merge1, merge2, merge3, merge4, merge5, merge6, merge7)
