@@ -14,6 +14,9 @@ source("MergeAll.R")
 ############################################
 #Plot some explenatory var against incidents
 ############################################
+table(merge8$cmort)
+summary(merge8$cmort)
+table(panel$cmort, panel$country)
 
 #compare mean and variance
 mean(panel$incidents)
@@ -66,9 +69,18 @@ plot(panel$year, panel$incidents, type = "b",
      xlab = "Years", 
      ylab = "Incidents of Piracy")
 
+hist(panel$lowfatalityestimate,
+     col=(c("darkmagenta")),
+     breaks=100,
+     main="Battle related deaths (low)",
+     xlab="Death Count", ylab="Frequency")
+
 ggplot(aes(x = year, y = incidents), col="goldenrod1", data = panel) + geom_line()
 #ggplot(aes(x = year, y = incidents), data = merge6) + geom_line()
 #scatterplot(incidents~year, col="goldenrod1", boxplots=FALSE, smooth=TRUE, reg.line=FALSE, data=panel)
+
+cor.test(merge8$GDP, merge8$mobile)
+cor.test(merge8$GNIpc, merge8$mobilep100)
 
 #################
 #GDPpc and piracy
