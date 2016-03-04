@@ -22,11 +22,25 @@ tapply(panel$incidents, panel$continent, mean)
 tapply(panel$incidents, panel$continent, var)
 #variance always larger than mean
 
+summary(NB1 <- glm.nb(incidents ~ cmort + FD + DD + pop.gr + ((polity2)^2) + GDPpc + WTI + unem.total + log(coastkm) + battlelow, data = panel))
+summary(Ptest <- glm(incbinary ~ cmort + FD + DD + pop.gr + ((polity2)^2) + GDPpc + WTI + unem.total + log(coastkm) + battlelow, data = panel, family = "poisson"))
+X <- 2*(logLik(NB1) - logLik(Ptest))
+list(X)
+pchisq(X, df = 1, lower.tail=FALSE)
+
+rm(NB1, Ptest, X)
+
+hist(panel$incidents,
+     col=(c("goldenrod1")),
+     breaks=50,
+     main="Piracy aroud the World",
+     xlab="Incidents of Piracy", ylab="Frequency")
 hist(panel$incidents,
      col=(c("goldenrod1")),
      breaks=100,
      main="Piracy aroud the World",
      xlab="Incidents of Piracy", ylab="Frequency")
+
 
 par(mfrow=c(1,3))
 hist(panel$incidents[panel$continent=="Africa"],
