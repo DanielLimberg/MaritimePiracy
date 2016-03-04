@@ -55,9 +55,8 @@ iso <- sea0$iso2c[!duplicated(sea0$iso2c)]
 allWDI <- WDI(iso, indicator = c("SL.UEM.TOTL.ZS", #unem.total (4th column)
                                  "SL.UEM.1524.ZS", #unem.y
                                  "SL.UEM.1524.MA.ZS", #unem.y.m
-                                 "NY.GDP.MKTP.KD", #GDP, constant 2005 USD
-                                 "NY.GDP.MKTP.KD.ZG", #GDP.gr, constant 2005 USD
-                                 "NY.GDP.PCAP.KD.ZG", #GDPpc.gr, constant 2005 USD
+                                 "NY.GDP.MKTP.KD", #GDP,total (constant 2005 USD)
+                                 "SP.POP.TOTL", #Population, total
                                  "IT.CEL.SETS", #mobile
                                  "IT.CEL.SETS.P2", #mobile per 100 people
                                  "SP.POP.GROW", #pop.gr
@@ -67,7 +66,8 @@ allWDI <- WDI(iso, indicator = c("SL.UEM.TOTL.ZS", #unem.total (4th column)
                                  "IQ.CPA.PROP.XQ", #property rights and rule-based governance rating
                                  "SL.AGR.EMPL.ZS", #empl.agrar
                                  "SI.POV.GINI", #gini
-                                 "NY.GNP.PCAP.KD"), #GNIpc, constant 2005 USD
+                                 "NY.GNP.PCAP.KD", #GNIpc, constant 2005 USD
+                                 "CC.PER.RNK"), #Control of Corruption: Percentile Rank (19th column)
               start=1993, end=2014)
 
 missmap(allWDI) #eyeballing missing data
@@ -76,18 +76,18 @@ names(allWDI)[4] <- 'unem.total'
 names(allWDI)[5] <- 'unem.y'
 names(allWDI)[6] <- 'unem.y.m'
 names(allWDI)[7] <- 'GDP'
-names(allWDI)[8] <- 'GDP.gr'
-names(allWDI)[9] <- 'GDPpc.gr'
-names(allWDI)[10] <- 'mobile'
-names(allWDI)[11] <- 'mobilep100'
-names(allWDI)[12] <- 'pop.gr'
-names(allWDI)[13] <- 'poprur.gr'
-names(allWDI)[14] <- 'popurb.gr'
-names(allWDI)[15] <- 'cmort'
-names(allWDI)[16] <- 'property'
-names(allWDI)[17] <- 'empl.agrar'
-names(allWDI)[18] <- 'gini'
-names(allWDI)[19] <- 'GNIpc'
+names(allWDI)[8] <- 'pop.total'
+names(allWDI)[9] <- 'mobile'
+names(allWDI)[10] <- 'mobilep100'
+names(allWDI)[11] <- 'pop.gr'
+names(allWDI)[12] <- 'poprur.gr'
+names(allWDI)[13] <- 'popurb.gr'
+names(allWDI)[14] <- 'cmort'
+names(allWDI)[15] <- 'property'
+names(allWDI)[16] <- 'empl.agrar'
+names(allWDI)[17] <- 'gini'
+names(allWDI)[18] <- 'GNIpc'
+names(allWDI)[19] <- 'corruption'
 
 #African countries w/ sealine (World Bank)
 allWDI$continent <- "ROW"
@@ -145,19 +145,6 @@ allWDI$continent[which(allWDI$iso2c=="VN")] <- "Asia"
 
 #theory suggests that GNIpc < 2000 a year might be more prone to piracy (Murphey2008)
 allWDI$GNIgroup <- cut(allWDI$GNIpc, c(0,2000,4000,6000,10000,20000))
-
-#country dummies
-idx <- sort(unique(allWDI$iso2c))
-dummy <- matrix(NA, nrow = nrow(allWDI), ncol = length(idx))
-for (j in 1:length(idx)) { 
-  dummy[,j] <- as.integer(allWDI$iso2c == idx[j])
-}
-rm(j)
-#names(dummy) <- idx
-#allWDI <- cbind(allWDI, dummy)
-
-#z.out <- zelig(y ~ x1 + x2 + x3 + as.factor(iso2c), 
-               #data = mydata, model = "ls")
 
 
 
