@@ -76,7 +76,7 @@ names(allWDI)[4] <- 'unem.total'
 names(allWDI)[5] <- 'unem.y'
 names(allWDI)[6] <- 'unem.y.m'
 names(allWDI)[7] <- 'GDP'
-names(allWDI)[8] <- 'GDPpc'
+names(allWDI)[8] <- 'GDP.gr'
 names(allWDI)[9] <- 'GDPpc.gr'
 names(allWDI)[10] <- 'mobile'
 names(allWDI)[11] <- 'mobilep100'
@@ -281,10 +281,10 @@ conflict <- read.csv("non-state-conflict.csv", header = TRUE, sep = ",", strings
 #renaming, otherwise no ISO2 code
 conflict$location[conflict$location=="Yemen (North Yemen)"] <- "Yemen"
 conflcc <- conflict$location
-conflict$startdate <- as.character(conflict$startdate)
-conflict$startdate <- substring(conflict$startdate,1,nchar(conflict$startdate)-6)
+conflict$startdate2 <- as.character(conflict$startdate2)
+conflict$startdate2 <- substring(conflict$startdate2,1,nchar(conflict$startdate2)-6)
 names(conflict)[16] <- 'year2' #former var name: year
-names(conflict)[9] <- 'year' #former var name: startdate
+names(conflict)[11] <- 'year' #former var name: startdate2
 conflict$iso2c <- countrycode(conflcc, "country.name", "iso2c")
 con <- ddply(conflict, .(iso2c, year), function(conflict) c(bestfatalityestimate=sum(conflict$bestfatalityestimate), lowfatalityestimate=sum(conflict$lowfatalityestimate), highfatalityestimate=sum(conflict$highfatalityestimate)))
 aggcon <- data.frame(con)
