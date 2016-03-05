@@ -4,22 +4,68 @@
 
 #set working directories if necessary (if data lies in git repo it is not necessary though)
 try(setwd(""),silent=TRUE)
-try(setwd("C:/Users/Dani/Documents/GitHub2/MaritimePiracy/MaritimePiracy_Code"),silent=TRUE)
+try(setwd("C:/Users/Dani/Documents/GitHub2/MaritimePiracy/MaritimePiracy_Data"),silent=TRUE)
 getwd()
 
+piracy <- read.csv("piracy.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE, na.strings = c("", "NA"))
+piracy$X <- NULL
+
 # Dynamically Link to first R script file
-source("MergeAll.R")
+#source("MergeAll.R")
 
 
 #############################################
 #Eyeballing the dependent variable: incidents
 #############################################
-hist(merge2$incidents, main="Incidents of Piracy", col="blue", breaks = 100) #poisson distribution, zero inflated
-summary(merge2$incidents)
-temp <- filter(merge2, incidents != 0) #only 804 observations left if all 0 deleted
-hist(temp$incidents, main="Incidents of Piracy", col="green", breaks = 100)
-table(temp$incidents)
-temp <- filter(merge2, incidents != 0, incidents != 32, incidents != 33, incidents != 34, incidents != 35, incidents != 36, incidents != 37, incidents != 39, incidents != 40, incidents != 45, incidents != 47, incidents != 50, incidents != 51, incidents != 54, incidents != 55, incidents != 58, incidents != 60, incidents != 62, incidents != 68, incidents != 71, incidents != 74, incidents != 76, incidents != 82, incidents != 84, incidents != 85, incidents != 87, incidents != 99, incidents != 100, incidents != 110, incidents != 111, incidents != 114, incidents != 117, incidents != 130, incidents != 131, incidents != 136)
+summary(piracy$incidents)
+var(piracy$incidents)
+mytable <- table(piracy$incidents)
+list(mytable)
+prop.table(mytable)
+summary(piracy$country)
+list(piracy$country)
+library(sjPlot)
+sjp.setTheme(theme = "scatter",
+             geom.label.size = 2.5,
+             geom.label.color = "navy",
+             axis.textsize = .8,
+             axis.title.size = .9)
+sjp.frq(piracy$incidents,
+        title = "Fig. 1 - Frequency of Pirate Attacks",
+        geom.colors = "darkorange",
+        sort.frq = "desc",
+        axisTitle.x = "Incidents of Piracy per country-year",
+        axisTitle.y = "Frequency",
+        coord.flip = FALSE)
+#sjp.setTheme(theme = "scatter",
+#             geom.label.size = 2.5,
+#             geom.label.color = "navy",
+#             axis.textsize = .8,
+#             axis.title.size = .9)
+#sjp.frq(piracy$incidents,
+#        type = "hist",
+#        title = "Fig. 1 - Frequency of Pirate Attacks",
+#        geom.colors = "darkorange",
+#        sort.frq = "desc",
+#        axisTitle.x = "Incidents of Piracy per country-year",
+#        axisTitle.y = "Frequency",
+#        geom.size = 3,
+#        showPercentageValues = FALSE,
+#        showStandardNormalCurve = TRUE,
+#        normalCurveColor = "red1",
+#        normalCurveSize = 1,
+#        normalCurveAlpha = 1,
+#        coord.flip = FALSE)
+
+
+year = piracy$year #x-axis
+incidents = piracy$incidents #y-axis
+plot(year, incidents, type="l",
+     xlab="years", ylab="Incidents of Maritime Piracy", main="Maritime Piracy 1993 - 2014",
+     col="darkorange",
+     lwd=2)
+
+temp <- filter(piracy, piracy$incidents >=32)
 hist(temp$incidents, main="Incidents of Piracy", col="orange", ylim=c(1,400), xlim=c(0,30))
 table(temp$incidents)
 rm(temp)
@@ -42,7 +88,11 @@ tapply(panel$incidents, panel$continent, var)
 
 hist(panel$incidents, main="Incidents of Piracy", col="blue", breaks = 100) #poisson distribution
 summary(panel$incidents) #mean = 1.725
-var(panel$incidents) #variance = 68.03806
+library(plm)
+panel <- pdata.frame(piracy, index=c("iso2c", "year")) #setting dataframe to panel data
+var(panel$incidents) #variance = 67.684
+var(piracy$incidents)
+
 #African countries only
 Africa <- filter(panel, continent == "Africa")
 hist(Africa$incidents, main="Incidents of Piracy", col="red", breaks = 100) #poisson distribution
@@ -105,7 +155,8 @@ hist(panel$lowfatalityestimate,
      main="Battle related deaths (low)",
      xlab="Death Count", ylab="Frequency")
 
-ggplot(aes(x = year, y = incidents), col="goldenrod1", data = panel) + geom_line()
+library(ggplot2)
+ggplot(aes(x = year, y = incidents), col="goldenrod1", data = piracy) + geom_line()
 #ggplot(aes(x = year, y = incidents), data = merge6) + geom_line()
 #scatterplot(incidents~year, col="goldenrod1", boxplots=FALSE, smooth=TRUE, reg.line=FALSE, data=panel)
 
