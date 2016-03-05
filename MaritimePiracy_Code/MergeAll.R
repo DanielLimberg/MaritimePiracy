@@ -243,20 +243,7 @@ merge1$incidents[is.na(merge1$incidents)] <- 0
 merge1$incbinary <- merge1$incidents
 merge1$incbinary[merge1$incbinary>=1] <- 1
 missmap(merge1) #eyeballing missing data
-hist(merge1$incidents, main="Incidents of Piracy", col="blue", breaks = 100) #poisson distribution
-summary(merge1$incidents) #mean = 1.725
-var(merge1$incidents) #variance = 68.03806
-#African countries only
-Africa <- filter(merge1, continent == "Africa")
-hist(Africa$incidents, main="Incidents of Piracy", col="red", breaks = 100) #poisson distribution
-summary(Africa$incidents) #mean = 1.674
-var(Africa$incidents) #variance = 21.52207
-#Asian countries only
-Asia <- filter(merge1, continent == "Asia")
-hist(Asia$incidents, main="Incidents of Piracy", col="yellow", breaks = 100) #poisson distribution
-summary(Asia$incidents) #mean = 9.315
-var(Asia$incidents) #variance = 513.1568
-rm(Africa, Asia)
+
 
 
 ####################
@@ -349,7 +336,7 @@ aggrtdiscomplete$FD[aggrtdiscomplete$FD>=2] <- 1
 merge3 <- merge(merge2,aggrtdiscomplete,by=c("iso2c", "year"), all.x = TRUE) #merges conflict2 + aggrtdis
 rm(aggrtdis, disaster, disastercc, aggrtdiscomplete)
 #merge3$Earthquake <- NULL
-#merge3$Epidemic <- NULL
+merge3$Epidemic <- NULL
 merge3$Impact <- NULL
 merge3$Landslide <- NULL
 #merge3$Storm <- NULL
