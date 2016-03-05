@@ -40,6 +40,21 @@ tapply(panel$incidents, panel$continent, mean)
 tapply(panel$incidents, panel$continent, var)
 #variance always larger than mean
 
+hist(panel$incidents, main="Incidents of Piracy", col="blue", breaks = 100) #poisson distribution
+summary(panel$incidents) #mean = 1.725
+var(panel$incidents) #variance = 68.03806
+#African countries only
+Africa <- filter(panel, continent == "Africa")
+hist(Africa$incidents, main="Incidents of Piracy", col="red", breaks = 100) #poisson distribution
+summary(Africa$incidents) #mean = 1.674
+var(Africa$incidents) #variance = 21.52207
+#Asian countries only
+Asia <- filter(panel, continent == "Asia")
+hist(Asia$incidents, main="Incidents of Piracy", col="yellow", breaks = 100) #poisson distribution
+summary(Asia$incidents) #mean = 9.315
+var(Asia$incidents) #variance = 513.1568
+rm(Africa, Asia)
+
 summary(NB1 <- glm.nb(incidents ~ cmort + FD + DD + pop.gr + ((polity2)^2) + GDPpc + WTI + unem.total + log(coastkm) + battlelow, data = panel))
 summary(Ptest <- glm(incbinary ~ cmort + FD + DD + pop.gr + ((polity2)^2) + GDPpc + WTI + unem.total + log(coastkm) + battlelow, data = panel, family = "poisson"))
 X <- 2*(logLik(NB1) - logLik(Ptest))
