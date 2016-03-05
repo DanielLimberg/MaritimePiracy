@@ -11,6 +11,21 @@ getwd()
 source("MergeAll.R")
 
 
+#############################################
+#Eyeballing the dependent variable: incidents
+#############################################
+hist(merge2$incidents, main="Incidents of Piracy", col="blue", breaks = 100) #poisson distribution, zero inflated
+summary(merge2$incidents)
+temp <- filter(merge2, incidents != 0) #only 804 observations left if all 0 deleted
+hist(temp$incidents, main="Incidents of Piracy", col="green", breaks = 100)
+table(temp$incidents)
+temp <- filter(merge2, incidents != 0, incidents != 32, incidents != 33, incidents != 34, incidents != 35, incidents != 36, incidents != 37, incidents != 39, incidents != 40, incidents != 45, incidents != 47, incidents != 50, incidents != 51, incidents != 54, incidents != 55, incidents != 58, incidents != 60, incidents != 62, incidents != 68, incidents != 71, incidents != 74, incidents != 76, incidents != 82, incidents != 84, incidents != 85, incidents != 87, incidents != 99, incidents != 100, incidents != 110, incidents != 111, incidents != 114, incidents != 117, incidents != 130, incidents != 131, incidents != 136)
+hist(temp$incidents, main="Incidents of Piracy", col="orange", ylim=c(1,400), xlim=c(0,30))
+table(temp$incidents)
+rm(temp)
+
+
+
 ############################################
 #Plot some explenatory var against incidents
 ############################################
