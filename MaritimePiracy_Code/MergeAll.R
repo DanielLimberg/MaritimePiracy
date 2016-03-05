@@ -120,6 +120,7 @@ allWDI$continent[which(allWDI$iso2c=="TN")] <- "Africa"
 allWDI$continent[which(allWDI$iso2c=="MU")] <- "Africa"
 allWDI$continent[which(allWDI$iso2c=="SC")] <- "Africa"
 allWDI$continent[which(allWDI$iso2c=="KM")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="TZ")] <- "Africa"
 
 #East Asian Pacific countries w/ sealine (World Bank)
 allWDI$continent[which(allWDI$iso2c=="JP")] <- "EastAsia"
@@ -265,7 +266,7 @@ merge1 <- merge(allWDI,aggrtship,by=c("iso2c", "year"), all.x = TRUE) #merges WD
 #merge1[!(duplicated(merge1[c("iso2c","year")]) | duplicated(merge1[c("iso2c","year")], fromLast = TRUE)), ]
 #merge1[duplicated(merge1[,1:2]),]
 #anti_join(allWDI,aggrtship,by= "iso2c", "year")
-rm(allWDI, aggrtship, shipping, aggrtcc, cc, iso, sea0, idx, dummy)
+rm(allWDI, aggrtship, shipping, aggrtcc, cc, iso, sea0)
 merge1$incidents[is.na(merge1$incidents)] <- 0
 merge1$incbinary <- merge1$incidents
 merge1$incbinary[merge1$incbinary>=1] <- 1
@@ -419,7 +420,7 @@ length[261, ] #West Bank, same iso2 code as Gaza Strip
 length <- length[-c(261), ]
 length <- na.omit(length)
 length$country <- NULL
-legnth$coastkm <- as.numeric(lenght$coastkm)
+length$coastkm <- as.numeric(lenght$coastkm)
 merge5 <- merge(merge4,length,by=c("iso2c"), all.x = TRUE) #merges merge4 + coastline length
 rm(length, lcc)
 
