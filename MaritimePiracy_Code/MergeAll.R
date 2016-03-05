@@ -65,7 +65,7 @@ allWDI <- WDI(iso, indicator = c("SL.UEM.TOTL.ZS", #unem.total (4th column)
                                  "IQ.CPA.PROP.XQ", #property rights and rule-based governance rating
                                  "SL.AGR.EMPL.ZS", #empl.agrar
                                  "SI.POV.GINI", #gini
-                                 "NY.GNP.MKTP.KD", #GNIpc, (constant 2005 USD)
+                                 "NY.GNP.PCAP.KD", #GNIpc, (constant 2005 USD)
                                  "CC.PER.RNK"), #Control of Corruption: Percentile Rank (18th column)
               start=1993, end=2014)
 
@@ -292,21 +292,6 @@ missmap(merge2) #eyeballing missing data
 
 
 
-#############################################
-#Eyeballing the dependent variable: incidents
-#############################################
-hist(merge2$incidents, main="Incidents of Piracy", col="blue", breaks = 100) #poisson distribution, zero inflated
-summary(merge2$incidents)
-temp <- filter(merge2, incidents != 0) #only 804 observations left if all 0 deleted
-hist(temp$incidents, main="Incidents of Piracy", col="green", breaks = 100)
-table(temp$incidents)
-temp <- filter(merge2, incidents != 0, incidents != 32, incidents != 33, incidents != 34, incidents != 35, incidents != 36, incidents != 37, incidents != 39, incidents != 40, incidents != 45, incidents != 47, incidents != 50, incidents != 51, incidents != 54, incidents != 55, incidents != 58, incidents != 60, incidents != 62, incidents != 68, incidents != 71, incidents != 74, incidents != 76, incidents != 82, incidents != 84, incidents != 85, incidents != 87, incidents != 99, incidents != 100, incidents != 110, incidents != 111, incidents != 114, incidents != 117, incidents != 130, incidents != 131, incidents != 136)
-hist(temp$incidents, main="Incidents of Piracy", col="orange", ylim=c(1,400), xlim=c(0,30))
-table(temp$incidents)
-rm(temp)
-
-
-
 ##############
 #Disaster Data
 ##############
@@ -340,30 +325,21 @@ aggrtdis[1740, ] #NetherlandsAntilles
 aggrtdis <- aggrtdis[-c(1740), ] #delete "NetherlandsAntilles" which is assigned ISO2 code NL
 aggrtdiscomplete <- aggrtdis[complete.cases(aggrtdis),] #delete country "CanaryIs" which has no ISO2 code (NA)
 
+#Storm dummy: SD
+aggrtdiscomplete$SD <- aggrtdiscomplete$Storm
+aggrtdiscomplete$SD[aggrtdiscomplete$SD>=2] <- 1
+
+#Earthquake dummy: ED
+aggrtdiscomplete$ED <- aggrtdiscomplete$Earthquake
+aggrtdiscomplete$ED[aggrtdiscomplete$ED>=2] <- 1
+
 #Dought dummy: DD
 aggrtdiscomplete$DD <- aggrtdiscomplete$Drought
-aggrtdiscomplete$DD[aggrtdiscomplete$DD==2] <- 1
-aggrtdiscomplete$DD[aggrtdiscomplete$DD==3] <- 1
+aggrtdiscomplete$DD[aggrtdiscomplete$DD>=2] <- 1
 
 #Flood dummy: FD
 aggrtdiscomplete$FD <- aggrtdiscomplete$Flood
-aggrtdiscomplete$FD[aggrtdiscomplete$FD==2] <- 1
-aggrtdiscomplete$FD[aggrtdiscomplete$FD==3] <- 1
-aggrtdiscomplete$FD[aggrtdiscomplete$FD==4] <- 1
-aggrtdiscomplete$FD[aggrtdiscomplete$FD==5] <- 1
-aggrtdiscomplete$FD[aggrtdiscomplete$FD==6] <- 1
-aggrtdiscomplete$FD[aggrtdiscomplete$FD==7] <- 1
-aggrtdiscomplete$FD[aggrtdiscomplete$FD==8] <- 1
-aggrtdiscomplete$FD[aggrtdiscomplete$FD==9] <- 1
-aggrtdiscomplete$FD[aggrtdiscomplete$FD==10] <- 1
-aggrtdiscomplete$FD[aggrtdiscomplete$FD==11] <- 1
-aggrtdiscomplete$FD[aggrtdiscomplete$FD==12] <- 1
-aggrtdiscomplete$FD[aggrtdiscomplete$FD==13] <- 1
-aggrtdiscomplete$FD[aggrtdiscomplete$FD==14] <- 1
-aggrtdiscomplete$FD[aggrtdiscomplete$FD==15] <- 1
-aggrtdiscomplete$FD[aggrtdiscomplete$FD==16] <- 1
-aggrtdiscomplete$FD[aggrtdiscomplete$FD==17] <- 1
-aggrtdiscomplete$FD[aggrtdiscomplete$FD==20] <- 1
+aggrtdiscomplete$FD[aggrtdiscomplete$FD>=2] <- 1
 
 
 
@@ -372,16 +348,20 @@ aggrtdiscomplete$FD[aggrtdiscomplete$FD==20] <- 1
 ###################################
 merge3 <- merge(merge2,aggrtdiscomplete,by=c("iso2c", "year"), all.x = TRUE) #merges conflict2 + aggrtdis
 rm(aggrtdis, disaster, disastercc, aggrtdiscomplete)
-merge3$Earthquake <- NULL
-merge3$Epidemic <- NULL
+#merge3$Earthquake <- NULL
+#merge3$Epidemic <- NULL
 merge3$Impact <- NULL
 merge3$Landslide <- NULL
-merge3$Storm <- NULL
+#merge3$Storm <- NULL
 merge3$Wildfire <- NULL
 merge3$Drought[is.na(merge3$Drought)] <- 0
 merge3$Flood[is.na(merge3$Flood)] <- 0
+merge3$Earthquake[is.na(merge3$Earthquake)] <- 0
+merge3$Storm[is.na(merge3$Storm)] <- 0
 merge3$DD[is.na(merge3$DD)] <- 0
 merge3$FD[is.na(merge3$FD)] <- 0
+merge3$ED[is.na(merge3$ED)] <- 0
+merge3$SD[is.na(merge3$SD)] <- 0
 missmap(merge3) #eyeballing missing data
 summary(merge3$gini.index) #2881 NA's, only 813 values
 temp <- filter(merge3, incidents != 0) #only 804 observations left if all 0 deleted
