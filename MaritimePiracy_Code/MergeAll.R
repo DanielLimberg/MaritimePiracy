@@ -1,8 +1,8 @@
-##############################################
-##############################################
-# Merge Test 2 - Merge Test 2 - Merge Test 2 #
-##############################################
-##############################################
+#################################################################
+#################################################################
+# Merge All Countries w/ sealine - Merge All Countries w/ sealine
+#################################################################
+#################################################################
 #Import the dataset about piracy incidentss into your wd 
 #Call libraries we need for the project, make sure you have them installed
 library(base)
@@ -273,7 +273,7 @@ merge2$lowfatalityestimate[is.na(merge2$lowfatalityestimate)] <- 0
 merge2$highfatalityestimate[is.na(merge2$highfatalityestimate)] <- 0
 #create categorical variable
 summary(merge2$lowfatalityestimate)
-merge2$battlelow <- cut(merge2$lowfatalityestimate, c(-1,25,500,10000))
+merge2$battlelow <- cut(merge2$lowfatalityestimate, c(0,25,100,500))
 table(merge2$battlelow)
 missmap(merge2) #eyeballing missing data
 
