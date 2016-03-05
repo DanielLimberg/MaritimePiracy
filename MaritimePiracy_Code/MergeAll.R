@@ -55,19 +55,18 @@ iso <- sea0$iso2c[!duplicated(sea0$iso2c)]
 allWDI <- WDI(iso, indicator = c("SL.UEM.TOTL.ZS", #unem.total (4th column)
                                  "SL.UEM.1524.ZS", #unem.y
                                  "SL.UEM.1524.MA.ZS", #unem.y.m
-                                 "NY.GDP.MKTP.KD", #GDP,total (constant 2005 USD)
+                                 "NY.GDP.PCAP.KD", #GDPpc (constant 2005 USD)
                                  "SP.POP.TOTL", #Population, total
                                  "IT.CEL.SETS", #mobile
                                  "IT.CEL.SETS.P2", #mobile per 100 people
-                                 "SP.POP.GROW", #pop.gr
                                  "SP.RUR.TOTL.ZG", #poprur.gr
                                  "SP.URB.GROW", #popurb.gr
                                  "SH.DYN.MORT", #child mortatlity <5 yrs per 1000
                                  "IQ.CPA.PROP.XQ", #property rights and rule-based governance rating
                                  "SL.AGR.EMPL.ZS", #empl.agrar
                                  "SI.POV.GINI", #gini
-                                 "NY.GNP.PCAP.KD", #GNIpc, constant 2005 USD
-                                 "CC.PER.RNK"), #Control of Corruption: Percentile Rank (19th column)
+                                 "NY.GNP.MKTP.KD", #GNIpc, (constant 2005 USD)
+                                 "CC.PER.RNK"), #Control of Corruption: Percentile Rank (18th column)
               start=1993, end=2014)
 
 missmap(allWDI) #eyeballing missing data
@@ -75,19 +74,18 @@ missmap(allWDI) #eyeballing missing data
 names(allWDI)[4] <- 'unem.total'
 names(allWDI)[5] <- 'unem.y'
 names(allWDI)[6] <- 'unem.y.m'
-names(allWDI)[7] <- 'GDP'
+names(allWDI)[7] <- 'GDPpc'
 names(allWDI)[8] <- 'pop.total'
 names(allWDI)[9] <- 'mobile'
 names(allWDI)[10] <- 'mobilep100'
-names(allWDI)[11] <- 'pop.gr'
-names(allWDI)[12] <- 'poprur.gr'
-names(allWDI)[13] <- 'popurb.gr'
-names(allWDI)[14] <- 'cmort'
-names(allWDI)[15] <- 'property'
-names(allWDI)[16] <- 'empl.agrar'
-names(allWDI)[17] <- 'gini'
-names(allWDI)[18] <- 'GNIpc'
-names(allWDI)[19] <- 'corruption'
+names(allWDI)[11] <- 'poprur.gr'
+names(allWDI)[12] <- 'popurb.gr'
+names(allWDI)[13] <- 'cmort'
+names(allWDI)[14] <- 'property'
+names(allWDI)[15] <- 'empl.agrar'
+names(allWDI)[16] <- 'gini'
+names(allWDI)[17] <- 'GNIpc'
+names(allWDI)[18] <- 'corruption'
 
 #African countries w/ sealine (World Bank)
 allWDI$continent <- "ROW"
