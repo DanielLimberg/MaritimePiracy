@@ -31,46 +31,13 @@ sjp.setTheme(theme = "scatter",
              axis.textsize = .8,
              axis.title.size = .9)
 sjp.frq(piracy$incidents,
-        title = "Fig. 1 - Frequency of Pirate Attacks",
+        title = "Fig. 1 - Frequency of Pirate Attacks 1993-2014",
         geom.colors = "darkorange",
         sort.frq = "desc",
         axisTitle.x = "Incidents of Piracy per country-year",
         axisTitle.y = "Frequency",
+        showPercentageValues = FALSE,
         coord.flip = FALSE)
-#sjp.setTheme(theme = "scatter",
-#             geom.label.size = 2.5,
-#             geom.label.color = "navy",
-#             axis.textsize = .8,
-#             axis.title.size = .9)
-#sjp.frq(piracy$incidents,
-#        type = "hist",
-#        title = "Fig. 1 - Frequency of Pirate Attacks",
-#        geom.colors = "darkorange",
-#        sort.frq = "desc",
-#        axisTitle.x = "Incidents of Piracy per country-year",
-#        axisTitle.y = "Frequency",
-#        geom.size = 3,
-#        showPercentageValues = FALSE,
-#        showStandardNormalCurve = TRUE,
-#        normalCurveColor = "red1",
-#        normalCurveSize = 1,
-#        normalCurveAlpha = 1,
-#        coord.flip = FALSE)
-
-
-year = piracy$year #x-axis
-incidents = piracy$incidents #y-axis
-plot(year, incidents, type="l",
-     xlab="years", ylab="Incidents of Maritime Piracy", main="Maritime Piracy 1993 - 2014",
-     col="darkorange",
-     lwd=2)
-
-temp <- filter(piracy, piracy$incidents >=32)
-hist(temp$incidents, main="Incidents of Piracy", col="orange", ylim=c(1,400), xlim=c(0,30))
-table(temp$incidents)
-rm(temp)
-
-
 
 ############################################
 #Plot some explenatory var against incidents
@@ -93,18 +60,6 @@ panel <- pdata.frame(piracy, index=c("iso2c", "year")) #setting dataframe to pan
 var(panel$incidents) #variance = 67.684
 var(piracy$incidents)
 
-#African countries only
-Africa <- filter(panel, continent == "Africa")
-hist(Africa$incidents, main="Incidents of Piracy", col="red", breaks = 100) #poisson distribution
-summary(Africa$incidents) #mean = 1.674
-var(Africa$incidents) #variance = 21.52207
-#Asian countries only
-Asia <- filter(panel, continent == "Asia")
-hist(Asia$incidents, main="Incidents of Piracy", col="yellow", breaks = 100) #poisson distribution
-summary(Asia$incidents) #mean = 9.315
-var(Asia$incidents) #variance = 513.1568
-rm(Africa, Asia)
-
 summary(NB1 <- glm.nb(incidents ~ cmort + FD + DD + pop.gr + ((polity2)^2) + GDPpc + WTI + unem.total + log(coastkm) + battlelow, data = panel))
 summary(Ptest <- glm(incbinary ~ cmort + FD + DD + pop.gr + ((polity2)^2) + GDPpc + WTI + unem.total + log(coastkm) + battlelow, data = panel, family = "poisson"))
 X <- 2*(logLik(NB1) - logLik(Ptest))
@@ -113,35 +68,106 @@ pchisq(X, df = 1, lower.tail=FALSE)
 
 rm(NB1, Ptest, X)
 
-hist(panel$incidents,
-     col=(c("goldenrod1")),
-     breaks=50,
-     main="Piracy aroud the World",
-     xlab="Incidents of Piracy", ylab="Frequency")
-hist(panel$incidents,
-     col=(c("goldenrod1")),
-     breaks=100,
-     main="Piracy aroud the World",
-     xlab="Incidents of Piracy", ylab="Frequency")
 
+Africa <- filter(piracy, continent == "Africa")
+summary(Africa$incidents)
+table(Africa$incidents)
+mean(Africa$incidents)
+var(Africa$incidents)
+MENA <- filter(piracy, continent == "MENA")
+table(MENA$incidents)
+summary(MENA$incidents)
+mean(MENA$incidents)
+var(MENA$incidents)
+SAsia <- filter(piracy, continent == "SouthAsia")
+table(SAsia$incidents)
+summary(SAsia$incidents)
+mean(SAsia$incidents)
+var(SAsia$incidents)
+EAsia <- filter(piracy, continent == "EastAsia")
+table(EAsia$incidents)
+summary(EAsia$incidents)
+mean(EAsia$incidents)
+var(EAsia$incidents)
+ROW <- filter(piracy, continent == "ROW")
+table(ROW$incidents)
+summary(ROW$incidents)
+mean(ROW$incidents)
+var(ROW$incidents)
 
-par(mfrow=c(1,3))
-hist(panel$incidents[panel$continent=="Africa"],
+sjp.setTheme(theme = "scatter",
+             geom.label.size = 2.5,
+             geom.label.color = "navy",
+             axis.textsize = .8,
+             axis.title.size = .9)
+sjp.frq(Africa$incidents,
+        title = "Africa - Frequency of Pirate Attacks '93-'14",
+        geom.colors = "firebrick1",
+        sort.frq = "desc",
+        axisTitle.x = "Incidents of Piracy per country-year",
+        axisTitle.y = "Frequency",
+        showPercentageValues = FALSE,
+        coord.flip = FALSE)
+sjp.frq(MENA$incidents,
+        title = "MENA - Frequency of Pirate Attacks '93-'14",
+        geom.colors = "chocolate4",
+        sort.frq = "desc",
+        axisTitle.x = "Incidents of Piracy per country-year",
+        axisTitle.y = "Frequency",
+        showPercentageValues = FALSE,
+        coord.flip = FALSE)
+sjp.frq(SAsia$incidents,
+        title = "S.Asia - Frequency of Pirate Attacks '93-'14",
+        geom.colors = "mediumspringgreen",
+        sort.frq = "desc",
+        axisTitle.x = "Incidents of Piracy per country-year",
+        axisTitle.y = "Frequency",
+        showPercentageValues = FALSE,
+        coord.flip = FALSE)
+sjp.frq(EAsia$incidents,
+        title = "E.Asia - Frequency of Pirate Attacks '93-'14",
+        geom.colors = "yellow2",
+        sort.frq = "desc",
+        axisTitle.x = "Incidents of Piracy per country-year",
+        axisTitle.y = "Frequency",
+        showPercentageValues = FALSE,
+        coord.flip = FALSE)
+sjp.frq(ROW$incidents,
+        title = "ROW - Frequency of Pirate Attacks '93-'14",
+        geom.colors = "deepskyblue2",
+        sort.frq = "desc",
+        axisTitle.x = "Incidents of Piracy per country-year",
+        axisTitle.y = "Frequency",
+        showPercentageValues = FALSE,
+        coord.flip = FALSE)
+
+par(mfrow=c(1,2))
+hist(piracy$incidents[piracy$continent=="Africa"],
      col=(c("firebrick1")),
-     breaks=10,
+     breaks=50,
      main="Piracy in Africa",
      xlab="Incidents of Piracy", ylab="Frequency")
-hist(panel$incidents[panel$continent=="Asia"],
-     col=(c("mediumspringgreen")),
-     breaks=10,
-     main="Piracy in Asia",
+hist(piracy$incidents[piracy$continent=="MENA"],
+     col=(c("chocolate4")),
+     breaks=50,
+     main="Piracy in MENA Region",
      xlab="Incidents of Piracy", ylab="Frequency")
-hist(panel$incidents[panel$continent=="ROW"],
-     col=(c("deepskyblue2")),
-     breaks=10,
-     main="Piracy in ROW",
+hist(piracy$incidents[piracy$continent=="SouthAsia"],
+     col=(c("mediumspringgreen")),
+     breaks=50,
+     main="Piracy in South Asia",
+     xlab="Incidents of Piracy", ylab="Frequency")
+hist(piracy$incidents[piracy$continent=="EastAsia"],
+     col=(c("yellow")),
+     breaks=50,
+     main="Piracy in East Asia",
      xlab="Incidents of Piracy", ylab="Frequency")
 par(mfrow=c(1,1))
+hist(piracy$incidents[piracy$continent=="ROW"],
+     col=(c("deepskyblue2")),
+     breaks=50,
+     main="Piracy in ROW",
+     xlab="Incidents of Piracy", ylab="Frequency")
 
 plot(panel$year, panel$incidents, type = "b",
      col=(c("goldenrod1")),
