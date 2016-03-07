@@ -66,7 +66,8 @@ allWDI <- WDI(iso, indicator = c("SL.UEM.TOTL.ZS", #unem.total (4th column)
                                  "SL.AGR.EMPL.ZS", #empl.agrar
                                  "SI.POV.GINI", #gini
                                  "NY.GNP.PCAP.KD", #GNIpc, (constant 2005 USD)
-                                 "CC.PER.RNK"), #Control of Corruption: Percentile Rank (18th column)
+                                 "CC.PER.RNK", #Control of Corruption: Percentile Rank (18th column)
+                                 "SP.POP.GROW"), #pop.gr (annual %)
               start=1993, end=2014)
 
 missmap(allWDI) #eyeballing missing data
@@ -86,6 +87,7 @@ names(allWDI)[15] <- 'empl.agrar'
 names(allWDI)[16] <- 'gini'
 names(allWDI)[17] <- 'GNIpc'
 names(allWDI)[18] <- 'corruption'
+names(allWDI)[19] <- 'pop.gr'
 
 #African countries w/ sealine (World Bank)
 allWDI$continent <- "ROW"
@@ -422,7 +424,7 @@ length[261, ] #West Bank, same iso2 code as Gaza Strip
 length <- length[-c(261), ]
 length <- na.omit(length)
 length$country <- NULL
-length$coastkm <- as.numeric(lenght$coastkm)
+length$coastkm <- as.numeric(length$coastkm)
 merge5 <- merge(merge4,length,by=c("iso2c"), all.x = TRUE) #merges merge4 + coastline length
 rm(length, lcc)
 
@@ -532,5 +534,7 @@ rm(polity, pcc)
 ###############################################
 #merge3 <- read.csv("merge3.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE, na.strings = c("", "NA"))
 #Africa <- read.csv("africa.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE, na.strings = c("", "NA"))
-panel <- pdata.frame(merge8, index=c("iso2c", "year")) #setting dataframe to panel data
+#panel <- pdata.frame(merge8, index=c("iso2c", "year")) #setting dataframe to panel data
 rm(merge1, merge2, merge3, merge4, merge5, merge6, merge7)
+
+#write.csv(merge8, file = "piracy.csv")
