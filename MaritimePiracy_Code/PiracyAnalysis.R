@@ -13,22 +13,57 @@ piracy$X <- NULL
 # Dynamically Link to first R script file
 #source("MergeAll.R")
 
+summary(piracy$iso2c)
+class(piracy$iso2c)
+piracy$iso2c <- as.character(piracy$iso2c)
+piracy$iso2c[is.na(piracy$iso2c)] <- "NA"
+
+piracy$cyr <- as.character(paste(piracy$iso2c, piracy$year, sep = "-"))
+
 
 #Logit model
-summary(logit1 <- glm(incbinary ~ cmort + FD + DD + log(pop.total) + ((polity2)^2) + GDPpc + WTI + unem.total + log(coastkm) + battlelow, data = panel, family = "binomial"))
-summary(logit2 <- glm(incbinary ~ cmort + FD + DD + log(pop.total) + ((polity2)^2) + GNIpc + WTI + unem.total + log(coastkm) + battlelow, data = panel, family = "binomial"))
-summary(logit3 <- glm(incbinary ~ cmort + FD + DD + log(pop.total) + ((polity2)^2) + GNIpc + WTI + unem.y.m + log(coastkm) + battlelow, data = panel, family = "binomial"))
-summary(logit4 <- glm(incbinary ~ cmort + FD + DD + log(pop.total) + ((polity2)^2) + GNIpc + WTI + unem.y.m + (borderkm/coastkm) + battlelow, data = panel, family = "binomial"))
-summary(logit5 <- glm(incbinary ~ cmort + FD + DD + log(pop.total) + ((polity2)^2) + GNIpc + WTI + unem.y.m + (borderkm/coastkm) + battlelow, data = panel, family = "binomial"))
-summary(logit6 <- glm(incbinary ~ cmort + FD + DD + log(pop.total) + ((polity2)^2) + log(GDPpc) + WTI + unem.y.m + (borderkm/coastkm) + battlelow + as.factor(country), data = panel, family = "binomial"))
-summary(logit7 <- glm(incbinary ~ cmort + FD + DD + log(pop.total) + ((polity2)^2) + log(mobile/pop.total) + WTI + unem.y.m + (borderkm/coastkm) + battlelow + as.factor(country), data = panel, family = "binomial"))
+summary(logit1 <- glm(incbinary ~ cmort + corruption + pop.gr + battlelow
+                      + FD + SD + ED + DD
+                      + GDPpc + WTI + unem.total
+                      + log(coastkm) + ((polity2)^2)
+                      + as.factor(country) + as.factor(year),
+                      data = piracy, family = "binomial"))
+summary(logit2 <- glm(incbinary ~ cmort +  corruption + pop.gr + battlelow
+                      + FD + SD + ED + DD
+                      + GNIpc + WTI + unem.total
+                      + log(coastkm) + ((polity2)^2)
+                      + as.factor(country) + as.factor(year),
+                      data = piracy, family = "binomial"))
+summary(logit3 <- glm(incbinary ~ cmort + corruption + pop.gr + battlelow
+                      + FD + SD + ED + DD 
+                      + GNIpc.group + WTI + unem.total
+                      + log(coastkm) + ((polity2)^2)
+                      + as.factor(country) + as.factor(year),
+                      data = piracy, family = "binomial"))
+summary(logit3 <- glm(incbinary ~ cmort + corruption + pop.gr + battlelow
+                      + FD + SD + ED + DD
+                      + GNIpc.group + WTI + unem.total
+                      + log(coastkm) + ((polity2)^2)
+                      + as.factor(country) + as.factor(year),
+                      data = piracy, family = "binomial"))
 
 
 #Neg. Bin. model
-summary(NB1 <- glm.nb(incidents ~ cmort + FD + DD + log(pop.total) + ((polity2)^2) + GDPpc + WTI + unem.total + log(coastkm) + battlelow, data = panel))
-summary(NB2 <- glm.nb(incidents ~ cmort + FD + DD + log(pop.total) + ((polity2)^2) + GNIpc + WTI + unem.total + log(coastkm) + battlelow, data = panel))
-summary(NB3 <- glm.nb(incidents ~ cmort + FD + DD + log(pop.total) + ((polity2)^2) + GNIpc + WTI + unem.y.m + log(coastkm) + battlelow, data = panel))
-summary(NB4 <- glm.nb(incidents ~ cmort + FD + DD + log(pop.total) + ((polity2)^2) + GNIpc + WTI + unem.y.m + (borderkm/coastkm) + battlelow, data = panel))
-summary(NB5 <- glm.nb(incidents ~ cmort + FD + DD + log(pop.total) + ((polity2)^2) + GNIpc + WTI + unem.y.m + (borderkm/coastkm) + battlelow + as.factor(country), data = panel))
-summary(NB6 <- glm.nb(incidents ~ cmort + FD + DD + log(pop.total) + ((polity2)^2) + log(GDPpc) + WTI + unem.y.m + (borderkm/coastkm) + battlelow + as.factor(country), data = panel))
-summary(NB7 <- glm.nb(incidents ~ cmort + FD + DD + log(pop.total) + ((polity2)^2) + log(mobile/pop.total) + WTI + unem.y.m + (borderkm/coastkm) + battlelow + as.factor(country), data = panel))
+summary(NB1 <- glm.nb(incidents ~ cmort + corruption + pop.gr + battlelow
+                      + FD + SD + ED + DD
+                      + GDPpc + WTI + unem.total
+                      + log(coastkm) + ((polity2)^2)
+                      + as.factor(country) + as.factor(year),
+                      data = piracy))
+summary(NB2 <- glm.nb(incidents ~ cmort + corruption + pop.gr + battlelow
+                      + FD + SD + ED + DD
+                      + GNIpc + WTI + unem.total
+                      + log(coastkm) + ((polity2)^2)
+                      + as.factor(country) + as.factor(year),
+                      data = piracy))
+summary(NB3 <- glm.nb(incidents ~ cmort + corruption + pop.gr + battlelow
+                      + FD + SD + ED + DD
+                      + GNIpc + WTI + unem.total
+                      + log(coastkm) + ((polity2)^2)
+                      + as.factor(country) + as.factor(year),
+                      data = piracy))
