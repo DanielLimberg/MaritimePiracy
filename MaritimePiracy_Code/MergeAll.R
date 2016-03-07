@@ -170,7 +170,7 @@ allWDI$continent[which(allWDI$iso2c=="PS")] <- "MENA"
 allWDI$continent[which(allWDI$iso2c=="YE")] <- "MENA"
 
 #theory suggests that GNIpc < 2000 a year might be more prone to piracy (Murphey2008)
-allWDI$GNIgroup <- cut(allWDI$GNIpc, c(0,2000,4000,6000,10000,20000))
+allWDI$GNIgroup <- cut(allWDI$GNIpc, c(0,2000,10000,200000))
 
 
 
@@ -219,9 +219,11 @@ shipping$incidents2 <- shipping$incidents
 #no differentiation between unsucc and succ attacks
 shipping$incidents[shipping$incidents==-99] <- NA
 shipping$incidents[is.na(shipping$incidents)] <- 0
-shipping$incidents <- factor(shipping$incidents,
-                             levels = c(0,1),
-                             labels = c("incidents", "incidents"))
+#shipping$incidents <- factor(shipping$incidents,
+#                             levels = c(1),
+#                             labels = c("incidents", "incidents"))
+shipping$incidents[shipping$incidents==0] <- 1
+shipping$incidents[shipping$incidents==1] <- "incidents"
 shipping$incidents <- factor(shipping$incidents)
 
 #only "1" in incidents2
@@ -266,10 +268,10 @@ merge1 <- merge(allWDI,aggrtship,by=c("iso2c", "year"), all.x = TRUE) #merges WD
 #merge1[!(duplicated(merge1[c("iso2c","year")]) | duplicated(merge1[c("iso2c","year")], fromLast = TRUE)), ]
 #merge1[duplicated(merge1[,1:2]),]
 #anti_join(allWDI,aggrtship,by= "iso2c", "year")
-rm(allWDI, aggrtship, shipping, aggrtcc, cc, iso, sea0)
 merge1$incidents[is.na(merge1$incidents)] <- 0
 merge1$incbinary <- merge1$incidents
 merge1$incbinary[merge1$incbinary>=1] <- 1
+rm(allWDI, aggrtship, shipping, aggrtcc, cc, iso, sea0)
 missmap(merge1) #eyeballing missing data
 
 
@@ -301,7 +303,7 @@ merge2$lowfatalityestimate[is.na(merge2$lowfatalityestimate)] <- 0
 merge2$highfatalityestimate[is.na(merge2$highfatalityestimate)] <- 0
 #create categorical variable
 summary(merge2$lowfatalityestimate)
-merge2$battlelow <- cut(merge2$lowfatalityestimate, c(0,25,100,500))
+merge2$battlelow <- cut(merge2$lowfatalityestimate, c(-1,24,150,20000))
 table(merge2$battlelow)
 missmap(merge2) #eyeballing missing data
 
