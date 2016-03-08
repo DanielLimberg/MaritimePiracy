@@ -17,8 +17,11 @@ summary(piracy$iso2c)
 class(piracy$iso2c)
 piracy$iso2c <- as.character(piracy$iso2c)
 piracy$iso2c[is.na(piracy$iso2c)] <- "NA"
-
 piracy$cyr <- as.character(paste(piracy$iso2c, piracy$year, sep = "-"))
+piracy$year <- as.factor(piracy$year)
+piracy$iso2c <- as.factor(piracy$iso2c)
+piracy$country <- as.factor(piracy$country)
+piracy$cyr <- as.factor(piracy$cyr)
 
 
 #Logit model
