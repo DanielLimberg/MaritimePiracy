@@ -1,6 +1,11 @@
 ########################
 # Maritime Piracy - Descriptive Statistics
 #######################
+library(ggplot2)
+library(sjPlot)
+library(rworldmap)
+library(rworldxtra)
+library(reshape2)
 
 #set working directories if necessary (if data lies in git repo it is not necessary though)
 try(setwd(""),silent=TRUE)
@@ -9,6 +14,11 @@ getwd()
 
 piracy <- read.csv("piracy.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE, na.strings = c("", "NA"))
 piracy$X <- NULL
+summary(piracy$iso2c)
+class(piracy$iso2c)
+piracy$iso2c <- as.character(piracy$iso2c)
+piracy$iso2c[is.na(piracy$iso2c)] <- "NA"
+
 
 #ten <- read.csv("MaritimePiracyTennessee.csv", header = TRUE, sep = ";", stringsAsFactors = TRUE, na.strings = c("", "NA"))
 
@@ -24,7 +34,8 @@ mytable <- table(piracy$incidents)
 list(mytable)
 prop.table(mytable)
 summary(piracy$country)
-library(sjPlot)
+
+
 sjp.setTheme(theme = "scatter",
              geom.label.size = 2.5,
              geom.label.color = "navy",
@@ -39,38 +50,49 @@ sjp.frq(piracy$incidents,
         showPercentageValues = FALSE,
         coord.flip = FALSE)
 
+
 Africa <- piracy[which(piracy$continent=="Africa"),]
 summary(Africa$incidents)
 table(Africa$incidents)
 mean(Africa$incidents)
 var(Africa$incidents)
+
 MENA <- piracy[which(piracy$continent=="MENA"),]
 table(MENA$incidents)
 summary(MENA$incidents)
 mean(MENA$incidents)
 var(MENA$incidents)
+
 SAsia <- piracy[which(piracy$continent=="SouthAsia"),]
 table(SAsia$incidents)
 summary(SAsia$incidents)
 mean(SAsia$incidents)
 var(SAsia$incidents)
+
 EAsia <- piracy[which(piracy$continent=="EastAsia"),]
 table(EAsia$incidents)
 summary(EAsia$incidents)
 mean(EAsia$incidents)
 var(EAsia$incidents)
+
 Asia <- piracy[which(piracy$continent=="EastAsia"|piracy$continent=="SouthAsia"),]
 table(Asia$incidents)
 summary(Asia$incidents)
 mean(Asia$incidents)
 var(Asia$incidents)
+
 ROW <- piracy[which(piracy$continent=="ROW"),]
 table(ROW$incidents)
 summary(ROW$incidents)
 mean(ROW$incidents)
 var(ROW$incidents)
 
-
+sum(piracy$incidents)
+Afsum <- sum(Africa$incidents)
+MEsum <- sum(MENA$incidents)
+Assum <- sum(Asia$incidents)
+ROWsum <- sum(ROW$incidents)
+sum(Afsum + MEsum + Assum + ROWsum)
 
 sjp.setTheme(theme = "scatter",
              geom.label.size = 2.5,
@@ -110,12 +132,6 @@ sjp.frq(ROW$incidents,
         showPercentageValues = FALSE,
         coord.flip = FALSE)
 
-sum(piracy$incidents)
-Afsum <- sum(Africa$incidents)
-MEsum <- sum(MENA$incidents)
-Assum <- sum(Asia$incidents)
-ROWsum <- sum(ROW$incidents)
-
 farben = c("firebrick1", "chocolate4", "mediumspringgreen", "deepskyblue2")
 
 slices <- c(Afsum, MEsum, Assum, ROWsum) 
@@ -135,11 +151,65 @@ piracy$continent2 <- as.factor(piracy$continent2)
 aggrtpi <- dcast(piracy, continent2 + year ~ incidents, sum) #p317 R for Dummies
 aggrtpi$ytotal <- rowSums(aggrtpi[,3:67])
 
-library(ggplot2)
+
 p <- ggplot(data = aggrtpi, aes(x = year, y = ytotal, group = continent2, color = continent2)) + geom_line() + ggtitle("Fig. 4 - Incidents of Maritime Piracy 1993-2014") + labs(x = "Year", y = "No. of Incidents")
 p + scale_colour_discrete(name  ="Region", labels=c("Africa", "Asia", "MENA", "ROW"))
 
+aggrtc <- dcast(piracy, iso2c ~ incidents, sum) #p317 R for Dummies
+aggrtc$ctotal <- rowSums(aggrtc[,2:66])
+#q <- ggplot(data = aggrtc, aes(x = country, y = ctotal, group = country, color = country))
+#q + ggtitle("Fig. 5 - Total No. of Incidents per Country") + labs(x = "Country", y = "No. of Incidents")
 
+
+aggrtc$category <- aggrtc$ctotal
+aggrtc$category <- cut(aggrtc$ctotal, c(-1,0,3,10,50,100,2000))
+
+d <- data.frame(country=c(aggrtc$iso2c),
+                value=aggrtc$category)
+n <- joinCountryData2Map(d,
+                         joinCode="ISO2", 
+                         nameJoinColumn="country",
+                         mapResolution = "high")
+mapCountryData(n, 
+               nameColumnToPlot="value", 
+               mapTitle="Total Incidents per Country 1993-2014",
+               mapRegion="World",
+               catMethod="categorical",
+               colourPalette=c('burlywood1', 'lightgreen', 'darkgreen', 'yellow', 'orange', 'red'),
+               addLegend=FALSE,
+               borderCol="black",
+               missingCountryCol="ghostwhite",
+               oceanCol = "lightblue")
+mapCountryData(n, 
+               nameColumnToPlot="value", 
+               mapTitle="Fig. 5a - Total Incidents per Country 1993-2014",
+               mapRegion="Africa",
+               catMethod="categorical",
+               colourPalette=c('burlywood1', 'lightgreen', 'darkgreen', 'yellow', 'orange', 'red'),
+               addLegend=FALSE,
+               borderCol="black",
+               missingCountryCol="white",
+               oceanCol = "lightblue")
+mapCountryData(n, 
+               nameColumnToPlot="value",
+               mapTitle="Fig. 5b - Total Incidents per Country 1993-2014",
+               mapRegion="Asia",
+               catMethod="categorical",
+               colourPalette=c('burlywood1', 'lightgreen', 'darkgreen', 'yellow', 'orange', 'red'),
+               addLegend=FALSE,
+               borderCol="black",
+               missingCountryCol="white",
+               oceanCol = "lightblue")
+mapCountryData(n, 
+               nameColumnToPlot="value", 
+               mapTitle="Fig. 5c - Total Incidents per Country 1993-2014",
+               mapRegion="Latin America",
+               catMethod="categorical",
+               colourPalette=c('burlywood1', 'lightgreen', 'darkgreen', 'yellow', 'orange', 'red'),
+               addLegend=FALSE,
+               borderCol="black",
+               missingCountryCol="white",
+               oceanCol = "lightblue")
 
 
 
