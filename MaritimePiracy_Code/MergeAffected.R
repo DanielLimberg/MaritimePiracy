@@ -1,8 +1,8 @@
-##############################################
-##############################################
-# Merge Test 3 - Merge Test 3 - Merge Test 3 #
-##############################################
-##############################################
+################################################################################
+################################################################################
+# Merge Affected Countries - Merge Affected Countries - Merge Affected Countries
+################################################################################
+################################################################################
 #Import the dataset about piracy incidentss into your wd 
 #Call libraries we need for the project, make sure you have them installed
 library(base)
@@ -10,26 +10,24 @@ library(rio) #swiss army knife for imports
 library(plyr) #command ddply
 library(dplyr) #data wrangling
 library(tidyr) #data wrangling
-library(ggplot2) #nice plots
-library(stargazer) #nicer regression output which looks like a real publication
-library(car) #scatterplots
+library(car) #scatterplots 
 library(httr) #scraping from http sites
 library(XML) #tool for generating XML file
 library(WDI) #scraping Data from the World Bank
-library(countrycode) #provides world bank country codes
+library(countrycode) #provides world bank country codes 
 library(Amelia) #eyeballing missing values
-library(plm) #fixed and random effects models
+library(tidyr) #reshaping
 library(stringr)
-library(sjPlot) #makes nice graphs, see: http://strengejacke.de/sjPlot/
-library(foreign)
-library(MASS)
-library(aod)
 library(Rcpp)
+library(XML)
+library(RCurl)
+library(reshape2)
 
 #set working directories if necessary (if data lies in git repo it is not necessary though)
 try(setwd("E:/bjoer/Documents/GitHub/MaritimePiracyWrangling/Data"),silent=TRUE)
 try(setwd("C:/Users/Dani/Documents/GitHub2/MaritimePiracy/MaritimePiracy_Data"),silent=TRUE)
 getwd()
+
 
 ############################
 #Piracy data from Tenneessee
@@ -54,8 +52,6 @@ shipping$vessel[shipping$vessel==1] <- 333
 shipping$vessel[shipping$vessel==5] <- 333
 shipping$vessel[shipping$vessel==9] <- 333
 shipping$vessel[shipping$vessel==10] <- 333
-shipping$vessel[shipping$vessel==111] <- 1
-shipping$vessel[shipping$vessel==222] <- 2
 shipping$vessel[shipping$vessel==-99] <- NA
 shipping$vessel[shipping$vessel==22] <- NA
 shipping$vessel[shipping$vessel==696] <- NA
@@ -65,7 +61,6 @@ shipping$vessel[shipping$vessel==333] <- 3
 shipping$vessel <- factor(shipping$vessel,
                           levels = c(1,2,3),
                           labels = c("merchant", "oil", "other"))
-shipping$vessel <- factor(shipping$vessel)
 
 names(shipping)[24] <- 'incidents' #former var name: Incident_type_recode
 shipping$incidents2 <- shipping$incidents
@@ -73,9 +68,8 @@ shipping$incidents2 <- shipping$incidents
 #no differentiation between unsucc and succ attacks
 shipping$incidents[shipping$incidents==-99] <- NA
 shipping$incidents[is.na(shipping$incidents)] <- 0
-shipping$incidents <- factor(shipping$incidents,
-                             levels = c(0,1),
-                             labels = c("incidents", "incidents"))
+shipping$incidents[shipping$incidents==0] <- 1
+shipping$incidents[shipping$incidents==1] <- "incidents"
 shipping$incidents <- factor(shipping$incidents)
 
 #only "1" in incidents2
@@ -84,76 +78,73 @@ shipping$incidents2[is.na(shipping$incidents2)] <- 0
 shipping$incidents2[shipping$incidents2==0] <- 1
 shipping$Incident_action_recode <- NULL
 
-#changing "Paracel Islands" to "China" (no ISO2 code for Paracel Islands)
+#changing "Cocos Is." to "Australia"
+shipping$closest_coastal_state[shipping$closest_coastal_state=="Cocos Is."] <- "Australia"
+
+#changing "Paracel Islands" to "China" (no ISo2 code for Paracel Islands)
 shipping$closest_coastal_state[shipping$closest_coastal_state=="Paracel Islands"] <- "China"
+shipping$territorial_water_status[shipping$territorial_water_status=="Paracel Islands"] <- "China"
+
 #changing "Spartly Islands" to "China" (no ISO2 code for Spratly Islands)
 shipping$closest_coastal_state[shipping$closest_coastal_state=="Spratly Islands"] <- "China"
+shipping$territorial_water_status[shipping$territorial_water_status=="Spratly Islands"] <- "China"
+
 #changing "The Congo" to "Congo", otherwise duplication
 shipping$closest_coastal_state[shipping$closest_coastal_state=="The Congo"] <- "Congo"
+
 #changing "Ivory" to "Cote d'Ivoire", otherwise duplications
 shipping$closest_coastal_state[shipping$closest_coastal_state=="Ivory "] <- "Cote d'Ivoire"
-#changing "Democratic Republic of Sao Tome and Principe" to "Sao Tome & Principe"
-shipping$closest_coastal_state[shipping$closest_coastal_state=="Democratic Republic of Sao Tome and Principe"] <- "Sao Tome & Principe"
 
 #Aggregate to Country Level
-library(reshape2)
-aggship <- dcast(shipping, closest_coastal_state + year ~ incidents, sum) #p317 R for Dummies
+aggrtship <- dcast(shipping, closest_coastal_state + year ~ incidents, sum) #p317 R for Dummies
 
-aggcc <- aggship$closest_coastal_state
-aggship$iso2c <- countrycode(aggcc, "country.name", "iso2c")
-aggship$closest_coastal_state <- NULL
-
-
-####################################
-####################################
-# Scraping Data from World Bank - BB
-####################################
-####################################
-#country names in ISO2
-iso <- aggship$iso2c[!duplicated(aggship$iso2c)]
+aggrtcc <- aggrtship$closest_coastal_state
+aggrtship$iso2c <- countrycode(aggrtcc, "country.name", "iso2c")
+aggrtship$closest_coastal_state <- NULL
 
 #parsing desired data from World Bank
+iso <- aggrtship$iso2c[!duplicated(aggrtship$iso2c)]
 allWDI <- WDI(iso, indicator = c("SL.UEM.TOTL.ZS", #unem.total (4th column)
-                                 "SL.UEM.1524.ZS", #unem.youth
-                                 "SL.UEM.1524.MA.ZS", #unem.youth.m
-                                 "NY.GDP.MKTP.KD", #GDP, constant 2005 USD
-                                 "NY.GDP.MKTP.KD.ZG", #GDP.gr, constant 2005 USD
-                                 "NY.GDP.PCAP.KD.ZG", #GDPpc.gr, constant 2005 USD
+                                 "SL.UEM.1524.ZS", #unem.y
+                                 "SL.UEM.1524.MA.ZS", #unem.y.m
+                                 "NY.GDP.PCAP.KD", #GDPpc (constant 2005 USD)
+                                 "SP.POP.TOTL", #Population, total
                                  "IT.CEL.SETS", #mobile
                                  "IT.CEL.SETS.P2", #mobile per 100 people
-                                 "SP.POP.GROW", #pop.gr
                                  "SP.RUR.TOTL.ZG", #poprur.gr
                                  "SP.URB.GROW", #popurb.gr
                                  "SH.DYN.MORT", #child mortatlity <5 yrs per 1000
-                                 "IQ.CPA.PROP.XQ", #property rights and rule-based governance rating
+                                 "NY.GNP.PCAP.CD", #GNI per capita, Atlas method (current US$)
                                  "SL.AGR.EMPL.ZS", #empl.agrar
-                                 "SI.POV.GINI"), #gini (18th column)
+                                 "SI.POV.GINI", #gini
+                                 "NY.GNP.PCAP.KD", #GNIpc, (constant 2005 USD)
+                                 "CC.PER.RNK", #Control of Corruption: Percentile Rank (18th column)
+                                 "SP.POP.GROW"), #pop.gr (annual %)
               start=1993, end=2014)
 
 missmap(allWDI) #eyeballing missing data
 
 names(allWDI)[4] <- 'unem.total'
-names(allWDI)[5] <- 'unem.youth'
-names(allWDI)[6] <- 'unem.youth.m'
+names(allWDI)[5] <- 'unem.y'
+names(allWDI)[6] <- 'unem.y.m'
 names(allWDI)[7] <- 'GDPpc'
-names(allWDI)[8] <- 'GDP'
-names(allWDI)[9] <- 'GDP.gr'
-names(allWDI)[10] <- 'GDPpc.gr'
-names(allWDI)[11] <- 'mobile'
-names(allWDI)[12] <- 'mobilep100'
-names(allWDI)[13] <- 'poprur.gr'
-names(allWDI)[14] <- 'popurb.gr'
-names(allWDI)[15] <- 'cmort'
-names(allWDI)[16] <- 'property'
-names(allWDI)[17] <- 'empl.agrar'
-names(allWDI)[18] <- 'gini'
+names(allWDI)[8] <- 'pop.total'
+names(allWDI)[9] <- 'mobile'
+names(allWDI)[10] <- 'mobilep100'
+names(allWDI)[11] <- 'poprur.gr'
+names(allWDI)[12] <- 'popurb.gr'
+names(allWDI)[13] <- 'cmort'
+names(allWDI)[14] <- 'Atlas'
+names(allWDI)[15] <- 'empl.agrar'
+names(allWDI)[16] <- 'gini'
+names(allWDI)[17] <- 'GNIpc'
+names(allWDI)[18] <- 'corruption'
+names(allWDI)[19] <- 'pop.gr'
 
 #African countries w/ sealine (World Bank)
 allWDI$continent <- "ROW"
-allWDI$continent[which(allWDI$iso2c=="EG")] <- "Africa"
 allWDI$continent[which(allWDI$iso2c=="SD")] <- "Africa"
 allWDI$continent[which(allWDI$iso2c=="ER")] <- "Africa"
-allWDI$continent[which(allWDI$iso2c=="DJ")] <- "Africa"
 allWDI$continent[which(allWDI$iso2c=="SO")] <- "Africa"
 allWDI$continent[which(allWDI$iso2c=="KE")] <- "Africa"
 allWDI$continent[which(allWDI$iso2c=="MZ")] <- "Africa"
@@ -179,66 +170,79 @@ allWDI$continent[which(allWDI$iso2c=="GM")] <- "Africa"
 allWDI$continent[which(allWDI$iso2c=="SN")] <- "Africa"
 allWDI$continent[which(allWDI$iso2c=="CV")] <- "Africa"
 allWDI$continent[which(allWDI$iso2c=="MR")] <- "Africa"
-allWDI$continent[which(allWDI$iso2c=="MA")] <- "Africa"
-allWDI$continent[which(allWDI$iso2c=="DZ")] <- "Africa"
-allWDI$continent[which(allWDI$iso2c=="LY")] <- "Africa"
 allWDI$continent[which(allWDI$iso2c=="TN")] <- "Africa"
 allWDI$continent[which(allWDI$iso2c=="MU")] <- "Africa"
 allWDI$continent[which(allWDI$iso2c=="SC")] <- "Africa"
 allWDI$continent[which(allWDI$iso2c=="KM")] <- "Africa"
+allWDI$continent[which(allWDI$iso2c=="TZ")] <- "Africa"
 
-#East Asian countries w/ sealine (World Bank)
-allWDI$continent[which(allWDI$iso2c=="JP")] <- "Asia"
-allWDI$continent[which(allWDI$iso2c=="CN")] <- "Asia"
-allWDI$continent[which(allWDI$iso2c=="KH")] <- "Asia"
-allWDI$continent[which(allWDI$iso2c=="ID")] <- "Asia"
-allWDI$continent[which(allWDI$iso2c=="KR")] <- "Asia"
-allWDI$continent[which(allWDI$iso2c=="MY")] <- "Asia"
-allWDI$continent[which(allWDI$iso2c=="MM")] <- "Asia"
-allWDI$continent[which(allWDI$iso2c=="PG")] <- "Asia"
-allWDI$continent[which(allWDI$iso2c=="PH")] <- "Asia"
-allWDI$continent[which(allWDI$iso2c=="SG")] <- "Asia"
-allWDI$continent[which(allWDI$iso2c=="TH")] <- "Asia"
-allWDI$continent[which(allWDI$iso2c=="TL")] <- "Asia"
-allWDI$continent[which(allWDI$iso2c=="VN")] <- "Asia"
+#East Asian Pacific countries w/ sealine (World Bank)
+allWDI$continent[which(allWDI$iso2c=="JP")] <- "EastAsia"
+allWDI$continent[which(allWDI$iso2c=="CN")] <- "EastAsia"
+allWDI$continent[which(allWDI$iso2c=="KH")] <- "EastAsia"
+allWDI$continent[which(allWDI$iso2c=="ID")] <- "EastAsia"
+allWDI$continent[which(allWDI$iso2c=="KR")] <- "EastAsia"
+allWDI$continent[which(allWDI$iso2c=="KP")] <- "EastAsia"
+allWDI$continent[which(allWDI$iso2c=="MY")] <- "EastAsia"
+allWDI$continent[which(allWDI$iso2c=="MM")] <- "EastAsia"
+allWDI$continent[which(allWDI$iso2c=="PG")] <- "EastAsia"
+allWDI$continent[which(allWDI$iso2c=="PH")] <- "EastAsia"
+allWDI$continent[which(allWDI$iso2c=="SG")] <- "EastAsia"
+allWDI$continent[which(allWDI$iso2c=="TH")] <- "EastAsia"
+allWDI$continent[which(allWDI$iso2c=="TL")] <- "EastAsia"
+allWDI$continent[which(allWDI$iso2c=="VN")] <- "EastAsia"
 
-#country dummies
-idx <- sort(unique(allWDI$iso2c))
-dummy <- matrix(NA, nrow = nrow(allWDI), ncol = length(idx))
-for (j in 1:length(idx)) { 
-  dummy[,j] <- as.integer(allWDI$iso2c == idx[j])
-}
-rm(j)
-#names(dummy) <- idx
-#allWDI <- cbind(allWDI, dummy)
+#South Asian Pacific countries w/ sealine (World Bank)
+allWDI$continent[which(allWDI$iso2c=="BD")] <- "SouthAsia"
+allWDI$continent[which(allWDI$iso2c=="IN")] <- "SouthAsia"
+allWDI$continent[which(allWDI$iso2c=="MV")] <- "SouthAsia"
+allWDI$continent[which(allWDI$iso2c=="PK")] <- "SouthAsia"
+allWDI$continent[which(allWDI$iso2c=="LK")] <- "SouthAsia"
 
-#z.out <- zelig(y ~ x1 + x2 + x3 + as.factor(iso2c), 
-#data = mydata, model = "ls")
-rm(dummy, idx)
+#MENA Region countries w/ sealine (World Bank)
+allWDI$continent[which(allWDI$iso2c=="EG")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="DJ")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="DZ")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="LY")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="MA")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="BH")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="IR")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="IL")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="IQ")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="JO")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="KW")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="LB")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="LY")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="MA")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="OM")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="QA")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="SA")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="SY")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="TN")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="AE")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="PS")] <- "MENA"
+allWDI$continent[which(allWDI$iso2c=="YE")] <- "MENA"
+
+#theory suggests that GNIpc < 2000 a year might be more prone to piracy (Murphey2008)
+allWDI$GNIcat <- cut(allWDI$GNIpc, c(0,2000,10000,200000))
+allWDI$Atcat <- cut(allWDI$Atlas, c(0,500,1000,2000,4000,8000,200000))
+
 
 ###################################
 # MERGE 1 ### MERGE 1 ### MERGE 1 #
 ###################################
-merge1 <- merge(allWDI,aggship,by=c("iso2c", "year"), all.x = TRUE) #merges WDI + data on piracy incidentss per country --> yes, works for us
+merge1 <- merge(allWDI, aggrtship, by=c("iso2c", "year"), all.x = TRUE) #merges WDI + data on piracy incidentss per country --> yes, works for us
+#TW, GF, MQ, TF, and IO are not in merge1, these incidents are omitted
+#merge1[!(duplicated(merge1[c("iso2c","year")]) | duplicated(merge1[c("iso2c","year")], fromLast = TRUE)), ]
 #merge1[duplicated(merge1[,1:2]),]
 #anti_join(allWDI,aggrtship,by= "iso2c", "year")
-rm(aggship, allWDI, shipping, aggcc, iso)
 merge1$incidents[is.na(merge1$incidents)] <- 0
+merge1$incbinary <- merge1$incidents
+merge1$incbinary[merge1$incbinary>=1] <- 1
+rm(allWDI, aggrtship, shipping, aggrtcc, iso)
 missmap(merge1) #eyeballing missing data
-hist(merge1$incidents, main="Incidents of Piracy", col="blue", breaks = 100) #poisson distribution
-summary(merge1$incidents) #mean = 2.978
-var(merge1$incidents) #variance = 113.9323
-#African countries only
-Africa <- filter(merge1, continent == "Africa")
-hist(Africa$incidents, main="Incidents of Piracy", col="red", breaks = 100) #poisson distribution
-summary(Africa$incidents) #mean = 1.865
-var(Africa$incidents) #variance = 23.65033
-#Asian countries only
-Asia <- filter(merge1, continent == "Asia")
-hist(Asia$incidents, main="Incidents of Piracy", col="yellow", breaks = 100) #poisson distribution
-summary(Asia$incidents) #mean = 10.09
-var(Asia$incidents) #variance = 548.2198
-rm(Africa, Asia)
+
+
 
 ####################
 #Armed Conflict data
@@ -247,27 +251,32 @@ conflict <- read.csv("non-state-conflict.csv", header = TRUE, sep = ",", strings
 #renaming, otherwise no ISO2 code
 conflict$location[conflict$location=="Yemen (North Yemen)"] <- "Yemen"
 conflcc <- conflict$location
-conflict$startdate <- as.character(conflict$startdate)
-conflict$startdate <- substring(conflict$startdate,1,nchar(conflict$startdate)-6)
+conflict$startdate2 <- as.character(conflict$startdate2)
+conflict$startdate2 <- substring(conflict$startdate2,1,nchar(conflict$startdate2)-6)
 names(conflict)[16] <- 'year2' #former var name: year
-names(conflict)[9] <- 'year' #former var name: startdate
+names(conflict)[11] <- 'year' #former var name: startdate2
 conflict$iso2c <- countrycode(conflcc, "country.name", "iso2c")
 con <- ddply(conflict, .(iso2c, year), function(conflict) c(bestfatalityestimate=sum(conflict$bestfatalityestimate), lowfatalityestimate=sum(conflict$lowfatalityestimate), highfatalityestimate=sum(conflict$highfatalityestimate)))
 aggcon <- data.frame(con)
 
+
+
 ###################################
 # MERGE 2 ### MERGE 2 ### MERGE 2 #
 ###################################
-merge2 <- merge(merge1,aggcon,by=c("iso2c", "year"), all.x = TRUE) #merges merge2 + aggcon
+merge2 <- merge(merge1,aggcon,by=c("iso2c", "year"), all.x = TRUE) #merges merge2 + aggrtmil2
 rm(aggcon, con, conflict, conflcc)
 merge2$bestfatalityestimate[is.na(merge2$bestfatalityestimate)] <- 0
 merge2$lowfatalityestimate[is.na(merge2$lowfatalityestimate)] <- 0
 merge2$highfatalityestimate[is.na(merge2$highfatalityestimate)] <- 0
 #create categorical variable
 summary(merge2$lowfatalityestimate)
-merge2$battlelow <- cut(merge2$lowfatalityestimate, c(-1,25,500,10000))
+merge2$battlelow <- cut(merge2$lowfatalityestimate, c(-1,24,150,20000))
+merge2$battlebest <- cut(merge2$bestfatalityestimate, c(-1,24,150,20000))
 table(merge2$battlelow)
 missmap(merge2) #eyeballing missing data
+
+
 
 ##############
 #Disaster Data
@@ -300,59 +309,58 @@ aggrtdis$country <- NULL
 
 aggrtdis[1740, ] #NetherlandsAntilles
 aggrtdis <- aggrtdis[-c(1740), ] #delete "NetherlandsAntilles" which is assigned ISO2 code NL
-aggdiscomplete <- aggrtdis[complete.cases(aggrtdis),] #delete country "CanaryIs" which has no ISO2 code (NA)
+aggrtdiscomplete <- aggrtdis[complete.cases(aggrtdis),] #delete country "CanaryIs" which has no ISO2 code (NA)
+
+#Storm dummy: SD
+aggrtdiscomplete$SD <- aggrtdiscomplete$Storm
+aggrtdiscomplete$SD[aggrtdiscomplete$SD>=2] <- 1
+
+#Earthquake dummy: ED
+aggrtdiscomplete$ED <- aggrtdiscomplete$Earthquake
+aggrtdiscomplete$ED[aggrtdiscomplete$ED>=2] <- 1
 
 #Dought dummy: DD
-aggdiscomplete$DD <- aggdiscomplete$Drought
-aggdiscomplete$DD[aggdiscomplete$DD==2] <- 1
-aggdiscomplete$DD[aggdiscomplete$DD==3] <- 1
+aggrtdiscomplete$DD <- aggrtdiscomplete$Drought
+aggrtdiscomplete$DD[aggrtdiscomplete$DD>=2] <- 1
 
 #Flood dummy: FD
-aggdiscomplete$FD <- aggdiscomplete$Flood
-aggdiscomplete$FD[aggdiscomplete$FD==2] <- 1
-aggdiscomplete$FD[aggdiscomplete$FD==3] <- 1
-aggdiscomplete$FD[aggdiscomplete$FD==4] <- 1
-aggdiscomplete$FD[aggdiscomplete$FD==5] <- 1
-aggdiscomplete$FD[aggdiscomplete$FD==6] <- 1
-aggdiscomplete$FD[aggdiscomplete$FD==7] <- 1
-aggdiscomplete$FD[aggdiscomplete$FD==8] <- 1
-aggdiscomplete$FD[aggdiscomplete$FD==9] <- 1
-aggdiscomplete$FD[aggdiscomplete$FD==10] <- 1
-aggdiscomplete$FD[aggdiscomplete$FD==11] <- 1
-aggdiscomplete$FD[aggdiscomplete$FD==12] <- 1
-aggdiscomplete$FD[aggdiscomplete$FD==13] <- 1
-aggdiscomplete$FD[aggdiscomplete$FD==14] <- 1
-aggdiscomplete$FD[aggdiscomplete$FD==15] <- 1
-aggdiscomplete$FD[aggdiscomplete$FD==16] <- 1
-aggdiscomplete$FD[aggdiscomplete$FD==17] <- 1
-aggdiscomplete$FD[aggdiscomplete$FD==20] <- 1
+aggrtdiscomplete$FD <- aggrtdiscomplete$Flood
+aggrtdiscomplete$FD[aggrtdiscomplete$FD>=2] <- 1
+
+
 
 ###################################
 # MERGE 3 ### MERGE 3 ### MERGE 3 #
 ###################################
-merge3 <- merge(merge2,aggdiscomplete,by=c("iso2c", "year"), all.x = TRUE) #merges conflict2 + aggrtdis
-rm(aggrtdis, disaster, disastercc, aggdiscomplete)
-merge3$Earthquake <- NULL
+merge3 <- merge(merge2,aggrtdiscomplete,by=c("iso2c", "year"), all.x = TRUE) #merges conflict2 + aggrtdis
+rm(aggrtdis, disaster, disastercc, aggrtdiscomplete)
+#merge3$Earthquake <- NULL
 merge3$Epidemic <- NULL
 merge3$Impact <- NULL
 merge3$Landslide <- NULL
-merge3$Storm <- NULL
+#merge3$Storm <- NULL
 merge3$Wildfire <- NULL
 merge3$Drought[is.na(merge3$Drought)] <- 0
 merge3$Flood[is.na(merge3$Flood)] <- 0
+merge3$Earthquake[is.na(merge3$Earthquake)] <- 0
+merge3$Storm[is.na(merge3$Storm)] <- 0
 merge3$DD[is.na(merge3$DD)] <- 0
 merge3$FD[is.na(merge3$FD)] <- 0
+merge3$ED[is.na(merge3$ED)] <- 0
+merge3$SD[is.na(merge3$SD)] <- 0
 missmap(merge3) #eyeballing missing data
-summary(merge3$gini.index)
-#temp <- filter(merge3, incidents != 0)
-#summary(temp$gini.index)
-#rm(temp)
+summary(merge3$gini.index) #2881 NA's, only 813 values
+temp <- filter(merge3, incidents != 0) #only 804 observations left if all 0 deleted
+summary(temp$gini.index) #592 NA's, only 212 values
+rm(temp)
+
+
 
 ###################################
 # MERGE 4 ### MERGE 4 ### MERGE 4 #
 ###################################
 oil <- read.csv("oil_wti.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE, na.strings = c("", "NA"))
-names(oil)[1] <- 'year' #former var name: DATE
+names(oil)[1] <- 'year'
 str(oil$year)
 oil$year <- as.character(oil$year)
 oil$year <- substring(oil$year,1,nchar(oil$year)-6)
@@ -365,8 +373,8 @@ rm(oil)
 ###################################
 # MERGE 5 ### MERGE 5 ### MERGE 5 #
 ###################################
-url <- "https://www.cia.gov/library/publications/the-world-factbook/fields/2060.html" #length of coastline
-page <- getURL(url, .opts = list(ssl.verifypeer=FALSE))
+URL <- "https://www.cia.gov/library/publications/the-world-factbook/fields/2060.html" #length of coastline
+page <- getURL(URL, .opts = list(ssl.verifypeer=FALSE))
 tables <- readHTMLTable(page, header=TRUE)
 
 length <- data.frame(tables)
@@ -383,61 +391,120 @@ length[261, ] #West Bank, same iso2 code as Gaza Strip
 length <- length[-c(261), ]
 length <- na.omit(length)
 length$country <- NULL
+length$coastkm <- as.numeric(length$coastkm)
 merge5 <- merge(merge4,length,by=c("iso2c"), all.x = TRUE) #merges merge4 + coastline length
-rm(length, url, page, tables, lcc)
+rm(length, lcc)
+
 
 
 ###################################
 # MERGE 6 ### MERGE 6 ### MERGE 6 #
 ###################################
+URL <- "https://www.cia.gov/library/publications/the-world-factbook/rankorder/2147rank.html" #square kilometers
+page <- getURL(URL, .opts = list(ssl.verifypeer=FALSE))
+tables <- readHTMLTable(page, header=TRUE)
+
+area <- data.frame(tables)
+area <- area[,c(2:3)]
+names(area)[1] <- 'country'
+names(area)[2] <- 'sqkm'
+area$sqkm <- as.character(area$sqkm)
+area$sqkm <- gsub("[, ]","",area$sqkm)
+#acc <- area$country
+#area$iso2c <- countrycode(acc, "country.name", "iso2c")
+area[172, ] #West Bank, same iso2 code as Gaza Strip
+area <- area[-c(172), ]
+area[239, ] #US Pacific Island Wildlife Refuges, same iso2 code as USA
+area <- area[-c(239), ]
+#area$country <- NULL
+area$sqkm <- as.numeric(area$sqkm)
+merge6 <- merge(merge5,area,by=c("country"), all.x = TRUE) #merges merge4 + coastline length
+rm(area, acc)
+
+
+
+###################################
+# MERGE 7 ### MERGE 7 ### MERGE 7 #
+###################################
+URL <- "https://www.cia.gov/library/publications/the-world-factbook/fields/2096.html" #lenght of border
+page <- getURL(URL, .opts = list(ssl.verifypeer=FALSE))
+tables <- readHTMLTable(page, header=TRUE)
+
+border <- data.frame(tables)
+names(border)[1] <- 'country'
+names(border)[2] <- 'borderkm'
+bcc <- border$country
+border$iso2c <- countrycode(bcc, "country.name", "iso2c")
+border[247, ] #US Pacific Island Wildlife Refuges, same iso2 code as USA
+border[257, ] #West Bank, same iso2 code as Gaza Strip
+border <- border[-c(247,257), ]
+border$borderkm <- as.character(border$borderkm)
+border$borderkm <- gsub("[,total: ]","",border$borderkm)
+border$borderkm <- gsub("[merpinFrnce-]","",border$borderkm)
+border$borderkm <- gsub("\\k.*","",border$borderkm)
+border$borderkm <- as.numeric(border$borderkm)
+border$country <- NULL
+merge7 <- merge(merge6,border,by=c("iso2c"), all.x = TRUE) #merges merge5 + border length
+rm(border, bcc, tables, page, URL)
+
+
+
+###################################
+# MERGE 8 ### MERGE 8 ### MERGE 8 #
+###################################
 polity <- read.csv("p4v2014.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE, na.strings = c("", "NA")) #polity iv project
-polity <- polity[,c(4:5,8:10)]
-#pcc <- polity$country
-#polity$iso2c <- countrycode(pcc, "country.name", "iso2c")
+polity <- polity[,c(4:5,8:9,11)]
+pcc <- polity$country
+polity$iso2c <- countrycode(pcc, "country.name", "iso2c")
 #polity$country <- NULL
-polity$polity[polity$polity==-88] <- NA
-polity$polity[polity$polity==-77] <- NA
-polity$polity[polity$polity==-66] <- NA
-polity$polity[polity$polity==-10] <- 111
-polity$polity[polity$polity==-9] <- 111
-polity$polity[polity$polity==-8] <- 111
-polity$polity[polity$polity==-7] <- 111
-polity$polity[polity$polity==-6] <- 111
-polity$polity[polity$polity==-5] <- 222
-polity$polity[polity$polity==-4] <- 222
-polity$polity[polity$polity==-3] <- 222
-polity$polity[polity$polity==-2] <- 222
-polity$polity[polity$polity==-1] <- 222
-polity$polity[polity$polity==0] <- 222
-polity$polity[polity$polity==1] <- 222
-polity$polity[polity$polity==2] <- 222
-polity$polity[polity$polity==3] <- 222
-polity$polity[polity$polity==4] <- 222
-polity$polity[polity$polity==5] <- 222
-polity$polity[polity$polity==6] <- 333
-polity$polity[polity$polity==7] <- 333
-polity$polity[polity$polity==8] <- 333
-polity$polity[polity$polity==9] <- 333
-polity$polity[polity$polity==10] <- 333
-polity$polity[polity$polity==111] <- 1
-polity$polity[polity$polity==222] <- 2
-polity$polity[polity$polity==333] <- 3
-polity$polity <- factor(polity$polity,
-                        levels = c(1,2,3),
-                        labels = c("autocracy", "anocracy", "democracy"))
-polity <- polity[,c(1:2,5)]
-merge6 <- merge(merge5,polity,by=c("country", "year"), all.x = TRUE) #merges merge5 + polity data series (why does it only work w/ 'country' not w/ 'iso2c'?)
-missmap(merge6) #eyeballing missing data
+#polity$polity[polity$polity==-88] <- NA
+#polity$polity[polity$polity==-77] <- NA
+#polity$polity[polity$polity==-66] <- NA
+#polity$polity2[polity$polity2==-10] <- 111
+#polity$polity2[polity$polity2==-9] <- 111
+#polity$polity2[polity$polity2==-8] <- 111
+#polity$polity2[polity$polity2==-7] <- 111
+#polity$polity2[polity$polity2==-6] <- 111
+#polity$polity2[polity$polity2==-5] <- 222
+#polity$polity2[polity$polity2==-4] <- 222
+#polity$polity2[polity$polity2==-3] <- 222
+#polity$polity2[polity$polity2==-2] <- 222
+#polity$polity2[polity$polity2==-1] <- 222
+#polity$polity2[polity$polity2==0] <- 222
+#polity$polity2[polity$polity2==1] <- 222
+#polity$polity2[polity$polity2==2] <- 222
+#polity$polity2[polity$polity2==3] <- 222
+#polity$polity2[polity$polity2==4] <- 222
+#polity$polity2[polity$polity2==5] <- 222
+#polity$polity2[polity$polity2==6] <- 111
+#polity$polity2[polity$polity2==7] <- 111
+#polity$polity2[polity$polity2==8] <- 111
+#polity$polity2[polity$polity2==9] <- 111
+#polity$polity2[polity$polity2==10] <- 111
+#polity$polity2[polity$polity2==111] <- 1
+#polity$polity2[polity$polity2==222] <- 2
+#polity$polity2[polity$polity2==333] <- 3
+#polity$polity2 <- factor(polity$polity2,
+#                          levels = c(1,2,3),
+#                          labels = c("aut-dem", "anocracy"))
+polity[14045, ] #Sudan split in 2011, therefore two n for Sudan and Sudan-North (both SD)
+polity <- polity[-c(14045), ] #delete Sudan 2011, only keep Sudan-North 2011
+polity <- polity[,c(2,5:6)]
+merge8 <- merge(merge7,polity,by=c("iso2c", "year"), all.x = TRUE) #merges merge5 + polity data series (why does it only work w/ 'country' not w/ 'iso2c'?)
+missmap(merge8) #eyeballing missing data
 rm(polity, pcc)
 
 
 
 ###############################################
 ###############################################
-# Analysis Socio-Economic Determinants - Lim.D.
+# Declare Panel Data
 ###############################################
 ###############################################
 #merge3 <- read.csv("merge3.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE, na.strings = c("", "NA"))
 #Africa <- read.csv("africa.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE, na.strings = c("", "NA"))
-panel <- pdata.frame(merge6, index=c("iso2c", "year")) #setting dataframe to panel data
-rm(merge1, merge2, merge3, merge4, merge5)
+#panel <- pdata.frame(merge8, index=c("iso2c", "year")) #setting dataframe to panel data
+rm(merge1, merge2, merge3, merge4, merge5, merge6, merge7)
+
+#write.csv(merge8, file = "JackSparrow.csv")
+
