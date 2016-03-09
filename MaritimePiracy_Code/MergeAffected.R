@@ -232,7 +232,7 @@ allWDI$Atcat <- cut(allWDI$Atlas, c(0,500,1000,2000,4000,8000,200000))
 # MERGE 1 ### MERGE 1 ### MERGE 1 #
 ###################################
 merge1 <- merge(allWDI, aggrtship, by=c("iso2c", "year"), all.x = TRUE) #merges WDI + data on piracy incidentss per country --> yes, works for us
-#TW, GF, MQ, TF, and IO are not in merge1, these incidents are omitted
+#TW, GF, MQ, TF, and IO are not in merge1, these incidents are omitted, 13 incidents closest_coastal_state/iso2c is N.A.
 #merge1[!(duplicated(merge1[c("iso2c","year")]) | duplicated(merge1[c("iso2c","year")], fromLast = TRUE)), ]
 #merge1[duplicated(merge1[,1:2]),]
 #anti_join(allWDI,aggrtship,by= "iso2c", "year")
@@ -327,6 +327,11 @@ aggrtdiscomplete$DD[aggrtdiscomplete$DD>=2] <- 1
 aggrtdiscomplete$FD <- aggrtdiscomplete$Flood
 aggrtdiscomplete$FD[aggrtdiscomplete$FD>=2] <- 1
 
+#Natural disaster dummy: ND
+aggrtdiscomplete$Disaster <- sum(aggrtdiscomplete$Storm + aggrtdiscomplete$Earthquake + aggrtdiscomplete$Drought + aggrtdiscomplete$Flood)
+aggrtdiscomplete$ND <- aggrtdiscomplete$Disaster
+aggrtdiscomplete$ND[which(aggrtdiscomplete$Disaster>=2)] <- 1
+
 
 
 ###################################
@@ -334,25 +339,21 @@ aggrtdiscomplete$FD[aggrtdiscomplete$FD>=2] <- 1
 ###################################
 merge3 <- merge(merge2,aggrtdiscomplete,by=c("iso2c", "year"), all.x = TRUE) #merges conflict2 + aggrtdis
 rm(aggrtdis, disaster, disastercc, aggrtdiscomplete)
-#merge3$Earthquake <- NULL
 merge3$Epidemic <- NULL
 merge3$Impact <- NULL
 merge3$Landslide <- NULL
-#merge3$Storm <- NULL
 merge3$Wildfire <- NULL
 merge3$Drought[is.na(merge3$Drought)] <- 0
 merge3$Flood[is.na(merge3$Flood)] <- 0
 merge3$Earthquake[is.na(merge3$Earthquake)] <- 0
 merge3$Storm[is.na(merge3$Storm)] <- 0
+merge$Disaster[is.na(merge3$Disaster)] <- 0
 merge3$DD[is.na(merge3$DD)] <- 0
 merge3$FD[is.na(merge3$FD)] <- 0
 merge3$ED[is.na(merge3$ED)] <- 0
 merge3$SD[is.na(merge3$SD)] <- 0
+merge3$ND[is.na(merge3$ND)] <- 0
 missmap(merge3) #eyeballing missing data
-summary(merge3$gini.index) #2881 NA's, only 813 values
-temp <- filter(merge3, incidents != 0) #only 804 observations left if all 0 deleted
-summary(temp$gini.index) #592 NA's, only 212 values
-rm(temp)
 
 
 
@@ -507,4 +508,3 @@ rm(polity, pcc)
 rm(merge1, merge2, merge3, merge4, merge5, merge6, merge7)
 
 #write.csv(merge8, file = "JackSparrow.csv")
-
