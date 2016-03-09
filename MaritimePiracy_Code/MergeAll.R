@@ -234,6 +234,9 @@ shipping$incidents2[is.na(shipping$incidents2)] <- 0
 shipping$incidents2[shipping$incidents2==0] <- 1
 shipping$Incident_action_recode <- NULL
 
+#changing "Cocos Is." to "Australia"
+shipping$closest_coastal_state[shipping$closest_coastal_state=="Cocos Is."] <- "Australia"
+
 #changing "Paracel Islands" to "China" (no ISo2 code for Paracel Islands)
 shipping$closest_coastal_state[shipping$closest_coastal_state=="Paracel Islands"] <- "China"
 shipping$territorial_water_status[shipping$territorial_water_status=="Paracel Islands"] <- "China"
@@ -254,7 +257,7 @@ aggrtship <- dcast(shipping, closest_coastal_state + year ~ incidents, sum) #p31
 
 aggrtcc <- aggrtship$closest_coastal_state
 aggrtship$iso2c <- countrycode(aggrtcc, "country.name", "iso2c")
-aggrtship$closest_coastal_state <- NULL
+#aggrtship$closest_coastal_state <- NULL
 
 #aggrtship[!(duplicated(aggrtship[c("iso2c","year")]) | duplicated(aggrtship[c("iso2c","year")], fromLast = TRUE)), ]
 #aggrtship[duplicated(aggrtship[,1:2]),]
@@ -267,6 +270,8 @@ aggrtship$closest_coastal_state <- NULL
 ###################################
 merge1 <- merge(allWDI,aggrtship,by=c("iso2c", "year"), all.x = TRUE) #merges WDI + data on piracy incidentss per country --> yes, works for us
 #TW, GF, MQ, TF, and IO are not in merge1, these incidents are omitted
+# 2014 13 incidents merged w/ Namibia, but iso2code in aggrtship N.A.
+
 #merge1[!(duplicated(merge1[c("iso2c","year")]) | duplicated(merge1[c("iso2c","year")], fromLast = TRUE)), ]
 #merge1[duplicated(merge1[,1:2]),]
 #anti_join(allWDI,aggrtship,by= "iso2c", "year")
