@@ -9,64 +9,29 @@ getwd()
 
 piracy <- read.csv("piracy.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE, na.strings = c("", "NA"))
 piracy$X <- NULL
+piracy$bcratio <- (piracy$borderkm/piracy$coastkm)
+piracy$p2sq <- ((piracy$polity2)^2)
 
 # Dynamically Link to first R script file
 #source("MergeAll.R")
 
-summary(piracy$iso2c)
-class(piracy$iso2c)
-piracy$iso2c <- as.character(piracy$iso2c)
-piracy$iso2c[is.na(piracy$iso2c)] <- "NA"
-piracy$cyr <- as.character(paste(piracy$iso2c, piracy$year, sep = "-"))
-piracy$year <- as.factor(piracy$year)
-piracy$iso2c <- as.factor(piracy$iso2c)
-piracy$country <- as.factor(piracy$country)
-piracy$cyr <- as.factor(piracy$cyr)
-
+#Linear Probability Model
+summary(LPM1 <- lm(incbinary ~ cmort + pop.gr + battlebest
+                   + ND
+                   + Atcat + unem.total
+                   + bcratio + p2sq,
+                   data = piracy))
 
 #Logit model
-summary(logit1 <- glm(incbinary ~ cmort + corruption + pop.gr + battlelow
-                      + FD + SD + ED + DD
-                      + GDPpc + WTI + unem.total
-                      + log(coastkm) + ((polity2)^2)
-                      + as.factor(country) + as.factor(year),
-                      data = piracy, family = "binomial"))
-summary(logit2 <- glm(incbinary ~ cmort +  corruption + pop.gr + battlelow
-                      + FD + SD + ED + DD
-                      + GNIpc + WTI + unem.total
-                      + log(coastkm) + ((polity2)^2)
-                      + as.factor(country) + as.factor(year),
-                      data = piracy, family = "binomial"))
-summary(logit3 <- glm(incbinary ~ cmort + corruption + pop.gr + battlelow
-                      + FD + SD + ED + DD 
-                      + GNIpc.group + WTI + unem.total
-                      + log(coastkm) + ((polity2)^2)
-                      + as.factor(country) + as.factor(year),
-                      data = piracy, family = "binomial"))
-summary(logit3 <- glm(incbinary ~ cmort + corruption + pop.gr + battlelow
-                      + FD + SD + ED + DD
-                      + GNIpc.group + WTI + unem.total
-                      + log(coastkm) + ((polity2)^2)
-                      + as.factor(country) + as.factor(year),
-                      data = piracy, family = "binomial"))
+summary(L1 <- glm(incbinary ~ cmort + pop.gr + battlebest
+                  + ND
+                  + Atcat + unem.total
+                  + bcratio + p2sq,
+                  data = piracy, family = "binomial"))
 
-
-#Neg. Bin. model
-summary(NB1 <- glm.nb(incidents ~ cmort + corruption + pop.gr + battlelow
-                      + FD + SD + ED + DD
-                      + GDPpc + WTI + unem.total
-                      + log(coastkm) + ((polity2)^2)
-                      + as.factor(country) + as.factor(year),
-                      data = piracy))
-summary(NB2 <- glm.nb(incidents ~ cmort + corruption + pop.gr + battlelow
-                      + FD + SD + ED + DD
-                      + GNIpc + WTI + unem.total
-                      + log(coastkm) + ((polity2)^2)
-                      + as.factor(country) + as.factor(year),
-                      data = piracy))
-summary(NB3 <- glm.nb(incidents ~ cmort + corruption + pop.gr + battlelow
-                      + FD + SD + ED + DD
-                      + GNIpc + WTI + unem.total
-                      + log(coastkm) + ((polity2)^2)
-                      + as.factor(country) + as.factor(year),
+#Negative Binomial model
+summary(NB1 <- glm.nb(incidents ~ cmort + pop.gr + battlebest
+                      + ND
+                      + Atcat + unem.total
+                      + bcratio + p2sq,
                       data = piracy))
