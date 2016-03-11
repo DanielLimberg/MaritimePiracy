@@ -14,6 +14,8 @@ getwd()
 
 jack <- read.csv("JackSparrow.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE, na.strings = c("", "NA"))
 jack$X <- NULL
+jack[1101:1122, ] #Kazakhstan, landlocked: no access to the high sea
+jack <- jack[-c(1101:1122), ]
 
 #ten <- read.csv("MaritimejackTennessee.csv", header = TRUE, sep = ";", stringsAsFactors = TRUE, na.strings = c("", "NA"))
 
@@ -151,7 +153,7 @@ jack$continent2 <- as.factor(jack$continent2)
 aggrtpi <- dcast(jack, continent2 + year ~ incidents, sum) #p317 R for Dummies
 aggrtpi$ytotal <- rowSums(aggrtpi[,3:67])
 
-p <- ggplot(data = aggrtpi, aes(x = year, y = ytotal, group = continent2, color = continent2)) + geom_line() + ggtitle("Fig. 4b - Incidents of Maritime Piracy 1993-2014") + labs(x = "Year", y = "No. of Incidents")
+p <- ggplot(data = aggrtpi, aes(x = year, y = ytotal, group = continent2, color = continent2)) + geom_line() + ggtitle("Fig. 4 - Incidents of Maritime Piracy 1993-2014") + labs(x = "Year", y = "No. of Incidents")
 p + scale_colour_discrete(name  ="Region", labels=c("Africa", "Asia", "MENA", "ROW"))
 
 aggrtc <- dcast(jack, iso2c ~ incidents, sum) #p317 R for Dummies
@@ -161,7 +163,7 @@ aggrtc$ctotal <- rowSums(aggrtc[,2:66])
 
 aggrtc$iso2c <- as.factor(aggrtc$iso2c)
 aggrtc$category <- aggrtc$ctotal
-aggrtc$category <- cut(aggrtc$ctotal, c(-1,0,3,10,50,100,2000))
+aggrtc$category <- cut(aggrtc$ctotal, c(0,1,2,3,10,20,50,2000))
 
 d <- data.frame(country=c(aggrtc$iso2c),
                 value=aggrtc$category)
@@ -175,7 +177,7 @@ mapCountryData(n,
                mapTitle="Fig. 5a - Total Incidents per Country 1993-2014",
                mapRegion="Africa",
                catMethod="categorical",
-               colourPalette=c('burlywood1', 'lightgreen', 'darkgreen', 'yellow', 'orange', 'red'),
+               colourPalette=c('burlywood1', 'lightgreen', 'darkgreen', 'yellow', 'orange', 'pink', 'darkred'),
                addLegend=FALSE,
                borderCol="black",
                missingCountryCol="white",
