@@ -257,11 +257,8 @@ aggrtship <- dcast(shipping, closest_coastal_state + year ~ incidents, sum) #p31
 
 aggrtcc <- aggrtship$closest_coastal_state
 aggrtship$iso2c <- countrycode(aggrtcc, "country.name", "iso2c")
-#aggrtship$closest_coastal_state <- NULL
-
-#aggrtship[!(duplicated(aggrtship[c("iso2c","year")]) | duplicated(aggrtship[c("iso2c","year")], fromLast = TRUE)), ]
-#aggrtship[duplicated(aggrtship[,1:2]),]
-#unique(is.na(aggrtship$iso2c))
+aggrtship$closest_coastal_state <- NULL
+aggrtship <- aggrtship[complete.cases(aggrtship),]
 
 
 
@@ -270,11 +267,6 @@ aggrtship$iso2c <- countrycode(aggrtcc, "country.name", "iso2c")
 ###################################
 merge1 <- merge(allWDI,aggrtship,by=c("iso2c", "year"), all.x = TRUE) #merges WDI + data on piracy incidentss per country --> yes, works for us
 #TW, GF, MQ, TF, and IO are not in merge1, these incidents are omitted
-# 2014 13 incidents merged w/ Namibia, but iso2code in aggrtship N.A.
-
-#merge1[!(duplicated(merge1[c("iso2c","year")]) | duplicated(merge1[c("iso2c","year")], fromLast = TRUE)), ]
-#merge1[duplicated(merge1[,1:2]),]
-#anti_join(allWDI,aggrtship,by= "iso2c", "year")
 merge1$incidents[is.na(merge1$incidents)] <- 0
 merge1$incbinary <- merge1$incidents
 merge1$incbinary[merge1$incbinary>=1] <- 1
