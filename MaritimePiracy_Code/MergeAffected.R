@@ -101,6 +101,7 @@ aggrtship <- dcast(shipping, closest_coastal_state + year ~ incidents, sum) #p31
 aggrtcc <- aggrtship$closest_coastal_state
 aggrtship$iso2c <- countrycode(aggrtcc, "country.name", "iso2c")
 aggrtship$closest_coastal_state <- NULL
+aggrtship <- aggrtship[complete.cases(aggrtship),]
 
 #parsing desired data from World Bank
 iso <- aggrtship$iso2c[!duplicated(aggrtship$iso2c)]
@@ -270,10 +271,8 @@ merge2$bestfatalityestimate[is.na(merge2$bestfatalityestimate)] <- 0
 merge2$lowfatalityestimate[is.na(merge2$lowfatalityestimate)] <- 0
 merge2$highfatalityestimate[is.na(merge2$highfatalityestimate)] <- 0
 #create categorical variable
-summary(merge2$lowfatalityestimate)
 merge2$battlelow <- cut(merge2$lowfatalityestimate, c(-1,24,150,20000))
 merge2$battlebest <- cut(merge2$bestfatalityestimate, c(-1,24,150,20000))
-table(merge2$battlelow)
 missmap(merge2) #eyeballing missing data
 
 
@@ -328,7 +327,7 @@ aggrtdiscomplete$FD <- aggrtdiscomplete$Flood
 aggrtdiscomplete$FD[aggrtdiscomplete$FD>=2] <- 1
 
 #Natural disaster dummy: ND
-aggrtdiscomplete$Disaster <- sum(aggrtdiscomplete$Storm + aggrtdiscomplete$Earthquake + aggrtdiscomplete$Drought + aggrtdiscomplete$Flood)
+aggrtdiscomplete$Disaster <- (aggrtdiscomplete$Storm + aggrtdiscomplete$Earthquake + aggrtdiscomplete$Drought + aggrtdiscomplete$Flood)
 aggrtdiscomplete$ND <- aggrtdiscomplete$Disaster
 aggrtdiscomplete$ND[which(aggrtdiscomplete$Disaster>=2)] <- 1
 
@@ -507,4 +506,4 @@ rm(polity, pcc)
 #panel <- pdata.frame(merge8, index=c("iso2c", "year")) #setting dataframe to panel data
 rm(merge1, merge2, merge3, merge4, merge5, merge6, merge7)
 
-#write.csv(merge8, file = "JackSparrow.csv")
+write.csv(merge8, file = "JackSparrow.csv")
