@@ -62,7 +62,7 @@ allWDI <- WDI(iso, indicator = c("SL.UEM.TOTL.ZS", #unem.total (4th column)
                                  "SP.RUR.TOTL.ZG", #poprur.gr
                                  "SP.URB.GROW", #popurb.gr
                                  "SH.DYN.MORT", #child mortatlity <5 yrs per 1000
-                                 "IQ.CPA.PROP.XQ", #property rights and rule-based governance rating
+                                 "NY.GNP.PCAP.CD", #GNI per capita, Atlas method (current US$)
                                  "SL.AGR.EMPL.ZS", #empl.agrar
                                  "SI.POV.GINI", #gini
                                  "NY.GNP.PCAP.KD", #GNIpc, (constant 2005 USD)
@@ -172,7 +172,8 @@ allWDI$continent[which(allWDI$iso2c=="PS")] <- "MENA"
 allWDI$continent[which(allWDI$iso2c=="YE")] <- "MENA"
 
 #theory suggests that GNIpc < 2000 a year might be more prone to piracy (Murphey2008)
-allWDI$GNIgroup <- cut(allWDI$GNIpc, c(0,2000,10000,200000))
+allWDI$GNIcat <- cut(allWDI$GNIpc, c(0,2000,10000,200000))
+allWDI$Atcat <- cut(allWDI$Atlas, c(0,500,1000,2000,4000,8000,200000))
 
 
 
@@ -301,9 +302,8 @@ merge2$bestfatalityestimate[is.na(merge2$bestfatalityestimate)] <- 0
 merge2$lowfatalityestimate[is.na(merge2$lowfatalityestimate)] <- 0
 merge2$highfatalityestimate[is.na(merge2$highfatalityestimate)] <- 0
 #create categorical variable
-summary(merge2$lowfatalityestimate)
 merge2$battlelow <- cut(merge2$lowfatalityestimate, c(-1,24,150,20000))
-table(merge2$battlelow)
+merge2$battlebest <- cut(merge2$bestfatalityestimate, c(-1,24,150,20000))
 missmap(merge2) #eyeballing missing data
 
 
@@ -357,6 +357,10 @@ aggrtdiscomplete$DD[aggrtdiscomplete$DD>=2] <- 1
 aggrtdiscomplete$FD <- aggrtdiscomplete$Flood
 aggrtdiscomplete$FD[aggrtdiscomplete$FD>=2] <- 1
 
+#Natural disaster dummy: ND
+aggrtdiscomplete$Disaster <- (aggrtdiscomplete$Storm + aggrtdiscomplete$Earthquake + aggrtdiscomplete$Drought + aggrtdiscomplete$Flood)
+aggrtdiscomplete$ND <- aggrtdiscomplete$Disaster
+aggrtdiscomplete$ND[which(aggrtdiscomplete$Disaster>=2)] <- 1
 
 
 ###################################
@@ -374,10 +378,12 @@ merge3$Drought[is.na(merge3$Drought)] <- 0
 merge3$Flood[is.na(merge3$Flood)] <- 0
 merge3$Earthquake[is.na(merge3$Earthquake)] <- 0
 merge3$Storm[is.na(merge3$Storm)] <- 0
+merge$Disaster[is.na(merge3$Disaster)] <- 0
 merge3$DD[is.na(merge3$DD)] <- 0
 merge3$FD[is.na(merge3$FD)] <- 0
 merge3$ED[is.na(merge3$ED)] <- 0
 merge3$SD[is.na(merge3$SD)] <- 0
+merge3$ND[is.na(merge3$ND)] <- 0
 missmap(merge3) #eyeballing missing data
 summary(merge3$gini.index) #2881 NA's, only 813 values
 temp <- filter(merge3, incidents != 0) #only 804 observations left if all 0 deleted
