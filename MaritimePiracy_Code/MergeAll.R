@@ -67,10 +67,11 @@ allWDI <- WDI(iso, indicator = c("SL.UEM.TOTL.ZS", #unem.total (4th column)
                                  "SI.POV.GINI", #gini
                                  "NY.GNP.PCAP.KD", #GNIpc, (constant 2005 USD)
                                  "CC.PER.RNK", #Control of Corruption: Percentile Rank (18th column)
-                                 "SP.POP.GROW"), #pop.gr (annual %)
+                                 "SP.POP.GROW", #pop.gr (annual %)
+                                 "SP.DYN.IMRT.IN"), #infant mortality <1 yrs per 1000
               start=1993, end=2014)
 
-missmap(allWDI) #eyeballing missing data
+missmap(allWDI) #eyeballing missing data#pop.gr (annual %)
 
 names(allWDI)[4] <- 'unem.total'
 names(allWDI)[5] <- 'unem.y'
@@ -82,12 +83,13 @@ names(allWDI)[10] <- 'mobilep100'
 names(allWDI)[11] <- 'poprur.gr'
 names(allWDI)[12] <- 'popurb.gr'
 names(allWDI)[13] <- 'cmort'
-names(allWDI)[14] <- 'property'
+names(allWDI)[14] <- 'Atlas'
 names(allWDI)[15] <- 'empl.agrar'
 names(allWDI)[16] <- 'gini'
 names(allWDI)[17] <- 'GNIpc'
 names(allWDI)[18] <- 'corruption'
 names(allWDI)[19] <- 'pop.gr'
+names(allWDI)[20] <- 'imort'
 
 #African countries w/ sealine (World Bank)
 allWDI$continent <- "ROW"
@@ -378,7 +380,7 @@ merge3$Drought[is.na(merge3$Drought)] <- 0
 merge3$Flood[is.na(merge3$Flood)] <- 0
 merge3$Earthquake[is.na(merge3$Earthquake)] <- 0
 merge3$Storm[is.na(merge3$Storm)] <- 0
-merge$Disaster[is.na(merge3$Disaster)] <- 0
+merge3$Disaster[is.na(merge3$Disaster)] <- 0
 merge3$DD[is.na(merge3$DD)] <- 0
 merge3$FD[is.na(merge3$FD)] <- 0
 merge3$ED[is.na(merge3$ED)] <- 0
@@ -450,8 +452,8 @@ area$sqkm <- gsub("[, ]","",area$sqkm)
 #area$iso2c <- countrycode(acc, "country.name", "iso2c")
 area[172, ] #West Bank, same iso2 code as Gaza Strip
 area <- area[-c(172), ]
-area[239, ] #US Pacific Island Wildlife Refuges, same iso2 code as USA
-area <- area[-c(239), ]
+area[238, ] #US Pacific Island Wildlife Refuges, same iso2 code as USA
+area <- area[-c(238), ]
 #area$country <- NULL
 area$sqkm <- as.numeric(area$sqkm)
 merge6 <- merge(merge5,area,by=c("country"), all.x = TRUE) #merges merge4 + coastline length
@@ -529,6 +531,19 @@ missmap(merge8) #eyeballing missing data
 rm(polity, pcc)
 
 
+###################################
+# MERGE 9 ### MERGE 9 ### MERGE 9 #
+###################################
+FISH5 <- read.csv("FISH5.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE, na.strings = c("+NA"))
+FISH5$X <- NULL
+names(FISH5)[2] <- 'country'
+names(FISH5)[3] <- 'fishcap'
+
+FISH5$country <- gsub(".t","",FISH5$country)
+merge9 <- merge(merge8,FISH5,by=c("country", "year"), all.x = TRUE) #merges merge5 + polity data series (why does it only work w/ 'country' not w/ 'iso2c'?)
+rm(FISH5)
+
+
 
 ###############################################
 ###############################################
@@ -538,6 +553,6 @@ rm(polity, pcc)
 #merge3 <- read.csv("merge3.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE, na.strings = c("", "NA"))
 #Africa <- read.csv("africa.csv", header = TRUE, sep = ";", stringsAsFactors = FALSE, na.strings = c("", "NA"))
 #panel <- pdata.frame(merge8, index=c("iso2c", "year")) #setting dataframe to panel data
-rm(merge1, merge2, merge3, merge4, merge5, merge6, merge7)
+rm(merge1, merge2, merge3, merge4, merge5, merge6, merge7, merge8)
 
-#write.csv(merge8, file = "piracy.csv")
+#write.csv(merge9, file = "piracy.csv")
