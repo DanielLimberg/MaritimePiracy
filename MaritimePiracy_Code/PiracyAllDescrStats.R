@@ -131,3 +131,100 @@ sjp.frq(ROW$incidents,
         axisTitle.y = "Country-years",
         showPercentageValues = FALSE,
         coord.flip = FALSE)
+rm(Africa, Asia, EAsia, MENA, piracy, ROW, SAsia, Afsum, Assum, MEsum, mytable, ROWsum)
+
+pAsia <- read.csv("piracyAsia.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE, na.strings = c("", "NA"))
+pAsia$X <- NULL
+pAsia$unem.y <- NULL
+pAsia$unem.y.m <- NULL
+pAsia$GDPpc <- NULL
+pAsia$mobile <- NULL
+pAsia$poprur.gr <- NULL
+pAsia$popurb.gr <- NULL
+pAsia$cmort <- NULL
+pAsia$empl.agrar <- NULL
+pAsia$gini <- NULL
+pAsia$GNIpc <- NULL
+pAsia$corruption <- NULL
+pAsia$pop.gr <- NULL
+pAsia$continent <- NULL
+pAsia$GNIcat <- NULL
+pAsia$Atcat <- NULL
+pAsia$bestfatalityestimate <- NULL
+pAsia$lowfatalityestimate <- NULL
+pAsia$highfatalityestimate <- NULL
+pAsia$battlelow <- NULL
+pAsia$Drought <- NULL
+pAsia$Earthquake <- NULL
+pAsia$Flood <- NULL
+pAsia$Storm <- NULL
+pAsia$SD <- NULL
+pAsia$ED <- NULL
+pAsia$DD <- NULL
+pAsia$FD <- NULL
+pAsia$Disaster <- NULL
+pAsia$WTI <- NULL
+pAsia$sqkm <- NULL
+pAsia <- pAsia[complete.cases(pAsia),]
+
+sjp.frq(pAsia$incidents,
+        title = "Fig. 2c - Asia 1993-2014",
+        geom.colors = "mediumspringgreen",
+        sort.frq = "none",
+        axisTitle.x = "Incidents of Piracy",
+        axisTitle.y = "Country-years",
+        showPercentageValues = FALSE,
+        coord.flip = FALSE)
+
+table(pAsia$incidents)
+summary(pAsia$incidents)
+mean(pAsia$incidents)
+var(pAsia$incidents)
+
+pREST <- read.csv("piracyMENAROWAfrica.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE, na.strings = c("", "NA"))
+pREST$X <- NULL
+pREST$unem.y <- NULL
+pREST$unem.y.m <- NULL
+pREST$GDPpc <- NULL
+pREST$mobile <- NULL
+pREST$poprur.gr <- NULL
+pREST$popurb.gr <- NULL
+pREST$cmort <- NULL
+pREST$empl.agrar <- NULL
+pREST$gini <- NULL
+pREST$GNIpc <- NULL
+pREST$corruption <- NULL
+pREST$pop.gr <- NULL
+pREST$continent <- NULL
+pREST$GNIcat <- NULL
+pREST$Atcat <- NULL
+pREST$bestfatalityestimate <- NULL
+pREST$lowfatalityestimate <- NULL
+pREST$highfatalityestimate <- NULL
+pREST$battlelow <- NULL
+pREST$Drought <- NULL
+pREST$Earthquake <- NULL
+pREST$Flood <- NULL
+pREST$Storm <- NULL
+pREST$SD <- NULL
+pREST$ED <- NULL
+pREST$DD <- NULL
+pREST$FD <- NULL
+pREST$Disaster <- NULL
+pREST$WTI <- NULL
+pREST$sqkm <- NULL
+pREST <- pREST[complete.cases(pREST),]
+
+sjp.frq(pREST$incidents,
+        title = "Fig. 2c - World w/o Asia 1993-2014",
+        geom.colors = "mediumspringgreen",
+        sort.frq = "none",
+        axisTitle.x = "Incidents of Piracy",
+        axisTitle.y = "Country-years",
+        showPercentageValues = FALSE,
+        coord.flip = FALSE)
+
+table(pREST$incidents)
+summary(pREST$incidents)
+mean(pREST$incidents)
+var(pREST$incidents)
