@@ -45,8 +45,8 @@ sjp.frq(piracy$incidents,
         title = "Fig. 1 - Frequency of Pirate Attacks 1993-2014",
         geom.colors = "darkorange",
         sort.frq = "none",
-        axisTitle.x = "Incidents of Piracy per country-year",
-        axisTitle.y = "Frequency",
+        axisTitle.x = "Incidents of Piracy",
+        axisTitle.y = "Country-years",
         showPercentageValues = FALSE,
         coord.flip = FALSE)
 
@@ -103,32 +103,32 @@ sjp.frq(Africa$incidents,
         title = "Fig. 2a - Africa 1993-2014",
         geom.colors = "firebrick1",
         sort.frq = "none",
-        axisTitle.x = "Incidents of Piracy per country-year",
-        axisTitle.y = "Frequency",
+        axisTitle.x = "Incidents of Piracy",
+        axisTitle.y = "Country-years",
         showPercentageValues = FALSE,
         coord.flip = FALSE)
 sjp.frq(MENA$incidents,
         title = "Fig. 2b - MENA 1993-2014",
         geom.colors = "chocolate4",
         sort.frq = "none",
-        axisTitle.x = "Incidents of Piracy per country-year",
-        axisTitle.y = "Frequency",
+        axisTitle.x = "Incidents of Piracy",
+        axisTitle.y = "Country-years",
         showPercentageValues = FALSE,
         coord.flip = FALSE)
 sjp.frq(Asia$incidents,
         title = "Fig. 2c - Asia 1993-2014",
         geom.colors = "mediumspringgreen",
         sort.frq = "none",
-        axisTitle.x = "Incidents of Piracy per country-year",
-        axisTitle.y = "Frequency",
+        axisTitle.x = "Incidents of Piracy",
+        axisTitle.y = "Country-years",
         showPercentageValues = FALSE,
         coord.flip = FALSE)
 sjp.frq(ROW$incidents,
         title = "Fig. 2d - ROW 1993-2014",
         geom.colors = "deepskyblue2",
         sort.frq = "none",
-        axisTitle.x = "Incidents of Piracy per country-year",
-        axisTitle.y = "Frequency",
+        axisTitle.x = "Incidents of Piracy",
+        axisTitle.y = "Country-years",
         showPercentageValues = FALSE,
         coord.flip = FALSE)
 
@@ -172,7 +172,7 @@ n <- joinCountryData2Map(d,
                          mapResolution = "high")
 mapCountryData(n, 
                nameColumnToPlot="value", 
-               mapTitle="Total Incidents per Country 1993-2014",
+               mapTitle="Incidents per Country 1993-2014",
                mapRegion="World",
                catMethod="categorical",
                colourPalette=c('burlywood1', 'lightgreen', 'darkgreen', 'yellow', 'orange', 'red'),
@@ -182,7 +182,7 @@ mapCountryData(n,
                oceanCol = "lightblue")
 mapCountryData(n, 
                nameColumnToPlot="value", 
-               mapTitle="Fig. 5a - Total Incidents per Country 1993-2014",
+               mapTitle="Fig. 5a - Incidents per Country 1993-2014",
                mapRegion="Africa",
                catMethod="categorical",
                colourPalette=c('burlywood1', 'lightgreen', 'darkgreen', 'yellow', 'orange', 'red'),
@@ -192,7 +192,7 @@ mapCountryData(n,
                oceanCol = "lightblue")
 mapCountryData(n, 
                nameColumnToPlot="value",
-               mapTitle="Fig. 5b - Total Incidents per Country 1993-2014",
+               mapTitle="Fig. 5b - Incidents per Country 1993-2014",
                mapRegion="Asia",
                catMethod="categorical",
                colourPalette=c('burlywood1', 'lightgreen', 'darkgreen', 'yellow', 'orange', 'red'),
@@ -202,7 +202,7 @@ mapCountryData(n,
                oceanCol = "lightblue")
 mapCountryData(n, 
                nameColumnToPlot="value", 
-               mapTitle="Fig. 5c - Total Incidents per Country 1993-2014",
+               mapTitle="Fig. 5c - Incidents per Country 1993-2014",
                mapRegion="Latin America",
                catMethod="categorical",
                colourPalette=c('burlywood1', 'lightgreen', 'darkgreen', 'yellow', 'orange', 'red'),
@@ -210,13 +210,3 @@ mapCountryData(n,
                borderCol="black",
                missingCountryCol="white",
                oceanCol = "lightblue")
-
-
-
-summary(NB1 <- glm.nb(incidents ~ cmort + FD + DD + pop.gr + ((polity2)^2) + GDPpc + WTI + unem.total + log(coastkm) + battlelow, data = panel))
-summary(Ptest <- glm(incbinary ~ cmort + FD + DD + pop.gr + ((polity2)^2) + GDPpc + WTI + unem.total + log(coastkm) + battlelow, data = panel, family = "poisson"))
-X <- 2*(logLik(NB1) - logLik(Ptest))
-list(X)
-pchisq(X, df = 1, lower.tail=FALSE)
-
-rm(NB1, Ptest, X)
