@@ -327,6 +327,14 @@ disaster$Homeless <- NULL
 
 disaster$disaster <- gsub("[^a-zA-Z0-9]","",disaster$disaster) #get rid of special characters
 disaster$country <- gsub("[^a-zA-Z0-9]","",disaster$country) #get rid of special characters
+disaster$country[disaster$country=="AzoresIslands"] <- "Azores Islands"
+disaster$country[disaster$country=="CanaryIs"] <- "Canary Islands"
+disaster$country[disaster$country=="CentralAfricanRep"] <- "Central African Republic"
+disaster$country[disaster$country=="LaoPDemRep"] <- "Laos"
+disaster$country[disaster$country=="StLucia"] <- "St. Lucia"
+disaster$country[disaster$country=="SerbiaMontenegro"] <- "Serbia"
+disaster$country[disaster$country=="VirginIsUS"] <- "U.S. Virgin Islands"
+disaster$country[disaster$country=="VirginIsUK"] <- "U.K. Virgin Islands"
 
 aggrtdis <- dcast(disaster, country + year ~ disaster, sum) #p317 R for Dummies
 disastercc <- aggrtdis$country
@@ -538,6 +546,12 @@ FISH5 <- read.csv("FISH5.csv", header = TRUE, sep = ",", stringsAsFactors = FALS
 FISH5$X <- NULL
 names(FISH5)[2] <- 'country'
 names(FISH5)[3] <- 'fishcap'
+
+FISH5[1009:1030,]
+FISH5 <- FISH5[-c(1009:1030), ]
+FISH5[1033:1034,]
+FISH5 <- FISH5[-c(1033:1034), ]
+FISH5$country[FISH5$country=="Sudan..former..t"] <- "Sudan.t"
 
 FISH5$country <- gsub(".t","",FISH5$country)
 merge9 <- merge(merge8,FISH5,by=c("country", "year"), all.x = TRUE) #merges merge5 + polity data series (why does it only work w/ 'country' not w/ 'iso2c'?)
