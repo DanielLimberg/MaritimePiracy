@@ -18,8 +18,8 @@ ten <- read.csv("MaritimePiracyTennessee.csv", header = TRUE, sep = ";", strings
 ten$territorial_water_status <- gsub("\\(.*","",ten$territorial_water_status)
 ten$territorial_water_status <- gsub("[^a-zA-Z0-9]","",ten$territorial_water_status)
 
-ten$Status <- "Territorial Waters"
-ten$Status[which(ten$territorial_water_status=="InternationaWaters")] <- "International Waters"
+ten$Status <- "Territorial"
+ten$Status[which(ten$territorial_water_status=="InternationaWaters")] <- "International"
 ten$Status[which(ten$id==6141)] <- "Unknown"
 ten$Status[which(ten$id==6127)] <- "Unknown"
 ten$Status[which(ten$id==6151)] <- "Unknown"
@@ -42,4 +42,5 @@ a + geom_bar(stat="count") +
   scale_y_continuous(labels=percent) +
   xlab("Water Status") +
   ylab("Percent") +
-  ggtitle("Piracy Attacks by Water Status 1993 - 2014")
+  ggtitle("Piracy Attacks by Water Status 1993 - 2014") +
+  theme(legend.text=element_text(size=25))

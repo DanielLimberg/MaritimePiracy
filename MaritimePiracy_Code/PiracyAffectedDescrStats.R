@@ -8,7 +8,7 @@ library(rworldxtra)
 library(reshape2)
 
 #set working directories if necessary (if data lies in git repo it is not necessary though)
-try(setwd(""),silent=TRUE)
+try(setwd("E:/bjoer/Documents/DatasetsBackup/04_SpringSemester/MaritimePiracy_Data"),silent=TRUE)
 try(setwd("C:/Users/Dani/Documents/GitHub2/MaritimePiracy/MaritimePiracy_Data"),silent=TRUE)
 getwd()
 
@@ -17,7 +17,7 @@ jack$X <- NULL
 jack[1101:1122, ] #Kazakhstan, landlocked: no access to the high sea
 jack <- jack[-c(1101:1122), ]
 
-#ten <- read.csv("MaritimejackTennessee.csv", header = TRUE, sep = ";", stringsAsFactors = TRUE, na.strings = c("", "NA"))
+piracy <- read.csv("piracy.csv", header = TRUE, sep = ",", stringsAsFactors = TRUE, na.strings = c("", "NA"))
 
 # Dynamically Link to first R script file
 #source("MergeAll.R")
@@ -43,8 +43,8 @@ sjp.setTheme(theme = "scatter",
              geom.label.color = "navy",
              axis.textsize = .8,
              axis.title.size = .9)
-sjp.frq(jack$incidents,
-        title = "Fig. 1 - Frequency of Pirate Attacks 1993-2014",
+sjp.frq(piracy$incidents,
+        title = "Global Frequency of Pirate Attacks 1993-2014",
         geom.colors = "darkorange",
         sort.frq = "none",
         axisTitle.x = "Incidents of Maritime Piracy",
@@ -153,7 +153,7 @@ jack$continent2 <- as.factor(jack$continent2)
 aggrtpi <- dcast(jack, continent2 + year ~ incidents, sum) #p317 R for Dummies
 aggrtpi$ytotal <- rowSums(aggrtpi[,3:67])
 
-p <- ggplot(data = aggrtpi, aes(x = year, y = ytotal, group = continent2, color = continent2)) + geom_line() + ggtitle("Fig. 4 - Incidents of Maritime Piracy 1993-2014") + labs(x = "Year", y = "No. of Incidents")
+p <- ggplot(data = aggrtpi, aes(x = year, y = ytotal, group = continent2, color = continent2)) + geom_line() + ggtitle("Incidents of Maritime Piracy 1993-2014 per Region") + labs(x = "Year", y = "No. of Incidents")
 p + scale_colour_discrete(name  ="Region", labels=c("Africa", "Asia", "MENA", "ROW"))
 
 aggrtc <- dcast(jack, iso2c ~ incidents, sum) #p317 R for Dummies
@@ -175,7 +175,7 @@ n <- joinCountryData2Map(d,
 mapCountryData(n, 
                nameColumnToPlot="value", 
                mapTitle="Fig. 5a - Total Incidents per Country 1993-2014",
-               mapRegion="Africa",
+               mapRegion="World",
                catMethod="categorical",
                colourPalette=c('burlywood1', 'lightgreen', 'darkgreen', 'yellow', 'orange', 'pink', 'darkred'),
                addLegend=FALSE,

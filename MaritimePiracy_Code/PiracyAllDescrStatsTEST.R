@@ -9,7 +9,11 @@ library(reshape2)
 library(countrycode)
 
 #set working directories if necessary (if data lies in git repo it is not necessary though)
+<<<<<<< HEAD
 try(setwd(""),silent=TRUE)
+=======
+try(setwd("E:/bjoer/Documents/DatasetsBackup/04_SpringSemester/MaritimePiracy_Data"),silent=TRUE)
+>>>>>>> 0323bade769ea616e8eaa015aedcb9804d9e43e6
 try(setwd("C:/Users/Dani/Documents/GitHub2/MaritimePiracy/MaritimePiracy_Data"),silent=TRUE)
 getwd()
 
@@ -224,7 +228,11 @@ Assum <- sum(Asia$incidents)
 ROWsum <- sum(ROW$incidents)
 sum(Afsum + MEsum + Assum + ROWsum)
 
+<<<<<<< HEAD
 farben = c("firebrick1", "chocolate4", "mediumspringgreen", "deepskyblue2")
+=======
+farben = c("tomato", "cyan2", "darkolivegreen4", "darkorchid1")
+>>>>>>> 0323bade769ea616e8eaa015aedcb9804d9e43e6
 
 slices <- c(Afsum, MEsum, Assum, ROWsum) 
 lbls <- c("Africa", "MENA", "Asia", "ROW")
@@ -232,7 +240,11 @@ pct <- round(slices/sum(slices)*100)
 lbls <- paste(lbls, pct) # add percents to labels 
 lbls <- paste(lbls,"%",sep="") # ad % to labels 
 pie(slices,labels = lbls, col=farben,
+<<<<<<< HEAD
     main="Fig. 3 - Share of Incidents of Maritime Piracy 1993-2014")
+=======
+    main="Share of Incidents of Maritime Piracy among Regions 1993-2014")
+>>>>>>> 0323bade769ea616e8eaa015aedcb9804d9e43e6
 
 aggrtship$continent2 <- aggrtship$continent
 aggrtship$incidents2 <- aggrtship$incidents
@@ -244,11 +256,19 @@ aggrtship <- aggrtship[,c(1,3,4,6,2,5)]
 aggrtcon <- dcast(aggrtship, continent2 + year ~ incidents, sum) #p317 R for Dummies
 aggrtcon$ytotal <- rowSums(aggrtcon[,3:66])
 
+<<<<<<< HEAD
 p <- ggplot(data = aggrtcon, aes(x = year, y = ytotal, group = continent2, color = continent2)) + geom_line() + ggtitle("Fig. 4 - Incidents of Maritime Piracy 1993-2014") + labs(x = "Year", y = "No. of Incidents")
 p + scale_colour_discrete(name  ="Region", labels=c("Africa", "Asia", "MENA", "ROW"))
 
 q <- ggplot(data = aggrtship2, aes(x = year, y = ytotal)) + geom_line()
 q + ggtitle("Fig. 5 - Global Incidents of Maritime Piracy 1993-2014") + labs(x = "Year", y = "No. of Incidents")
+=======
+p <- ggplot(data = aggrtcon, aes(x = year, y = ytotal, group = continent2, color = continent2)) + geom_line() + ggtitle("Incidents of Maritime Piracy 1993-2014 per Region") + labs(x = "Year", y = "No. of Incidents")
+p + scale_colour_discrete(name  ="Region", labels=c("Africa", "Asia", "MENA", "ROW"))
+
+q <- ggplot(data = aggrtship2, aes(x = year, y = ytotal)) + geom_line()
+q + ggtitle("Incidents of Maritime Piracy 1993-2014 World Total") + labs(x = "Year", y = "No. of Incidents")
+>>>>>>> 0323bade769ea616e8eaa015aedcb9804d9e43e6
 
 
 aggrtc <- dcast(aggrtship, iso2c ~ incidents, sum) #p317 R for Dummies
@@ -256,7 +276,11 @@ aggrtc$ctotal <- rowSums(aggrtc[,2:65])
 
 
 aggrtc$category <- aggrtc$ctotal
+<<<<<<< HEAD
 aggrtc$category <- cut(aggrtc$ctotal, c(1,2,3,10,50,100,2000))
+=======
+aggrtc$category <- cut(aggrtc$ctotal, c(0,10,50,100,500,2000))
+>>>>>>> 0323bade769ea616e8eaa015aedcb9804d9e43e6
 
 d <- data.frame(country=c(aggrtc$iso2c),
                 value=aggrtc$category)
@@ -264,6 +288,7 @@ n <- joinCountryData2Map(d,
                          joinCode="ISO2", 
                          nameJoinColumn="country",
                          mapResolution = "high")
+<<<<<<< HEAD
 #palegoldenrod=0, burlywood1=1, lightgreen=2-3, darkgreen=4-10, yellow=11-50, orange=51-100, red>100
 mapCountryData(n, 
                nameColumnToPlot="value", 
@@ -274,6 +299,19 @@ mapCountryData(n,
                addLegend=FALSE,
                borderCol="black",
                missingCountryCol="palegoldenrod",
+=======
+#burlywood1', 'lightgreen', 'darkgreen', 'yellow', 'orange', 'red'
+#palegoldenrod=0, burlywood1=1, lightgreen=2-3, darkgreen=4-10, yellow=11-50, orange=51-100, red>100
+mapCountryData(n, 
+               nameColumnToPlot="value", 
+               mapTitle="Incidents per Country 1993-2014 - Asia",
+               mapRegion="Asia",
+               catMethod="categorical",
+               colourPalette=c('greenyellow', 'yellow', 'orange', 'red', 'darkred'),
+               addLegend=TRUE,
+               borderCol="black",
+               missingCountryCol="lightgrey",
+>>>>>>> 0323bade769ea616e8eaa015aedcb9804d9e43e6
                oceanCol = "lightblue")
 mapCountryData(n, 
                nameColumnToPlot="value",
