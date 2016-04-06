@@ -499,7 +499,7 @@ rm(border, bcc, tables, page, URL)
 # MERGE 8 ### MERGE 8 ### MERGE 8 #
 ###################################
 polity <- read.csv("p4v2014.csv", header = TRUE, sep = ",", stringsAsFactors = FALSE, na.strings = c("", "NA")) #polity iv project
-polity <- polity[,c(4:5,8:9,11)]
+polity <- polity[,c(4:5,8:11)]
 #pcc <- polity$country
 #polity$iso2c <- countrycode(pcc, "country.name", "iso2c")
 #polity$country <- NULL
@@ -533,7 +533,7 @@ polity <- polity[,c(4:5,8:9,11)]
 #polity$polity2 <- factor(polity$polity2,
 #                          levels = c(1,2,3),
 #                          labels = c("aut-dem", "anocracy"))
-polity <- polity[,c(1:2,5)]
+polity <- polity[,c(1:2,5:6)]
 merge8 <- merge(merge7,polity,by=c("country", "year"), all.x = TRUE) #merges merge5 + polity data series (why does it only work w/ 'country' not w/ 'iso2c'?)
 missmap(merge8) #eyeballing missing data
 rm(polity, pcc)
